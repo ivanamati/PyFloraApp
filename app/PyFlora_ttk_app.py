@@ -1,4 +1,5 @@
 import tkinter as tk
+from sqlalchemy import TextClause
 import ttkbootstrap as ttk
 from tkinter import Button, Label
 from ttkbootstrap.constants import *
@@ -35,7 +36,7 @@ def spoji_sliku_s_folderom(photo_filename):
     folder_sa_slikama = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),   # folder u kojem se nalazi ovaj file
-            "slike_biljaka"              # folder u koji ćemo spremati slike
+            "SLIKE_BILJAKA"              # folder u koji ćemo spremati slike
         )
     )
     slika_puna_putanja = os.path.join(
@@ -571,7 +572,7 @@ class PyFlora:
         self.pocetna_slikica()
         self.nacrtaj_header("PyFlora Posuda: Biljke") 
 
-        baza_biljaka=session.execute("SELECT * FROM biljke")
+        baza_biljaka=session.execute(TextClause("SELECT * FROM biljke"))
         stupac = 0
         redak = 0
         
@@ -637,14 +638,15 @@ class PyFlora:
         self.nacrtaj_header("PyFlora Posuda: Biljka") 
     
         # kako spojiti odabranu sliku klikom na gumb s bazom i detaljima o biljci???
-        baza_biljaka=session.execute("SELECT * FROM biljke")
+        baza_biljaka=session.execute(TextClause("SELECT * FROM biljke"))
         for biljka in baza_biljaka:
             img= self.dohvati_sliku(width=150, height=95,ime_slike=biljka.slika_biljke)
-        if img is not None:
-            label_slika = ImageTk.PhotoImage(img)
-            slika_biljke = ttk.Label(self.root, image=label_slika,bootstyle="light-inverse",borderwidth=0)
-            slika_biljke.image = label_slika
-            slika_biljke.place(anchor='center', relx=0.5, rely=0.5)
+            if img is not None:
+                label_slika = ImageTk.PhotoImage(img)
+                slika_biljke = ttk.Label(self.root, image=label_slika,bootstyle="light-inverse",borderwidth=0)
+                slika_biljke.image = label_slika
+                slika_biljke.place(anchor='center', relx=0.5, rely=0.5)
+                self.ubaci_tekst_u_label(self.root,ime_slike=biljka.ime_biljke)
 
 
     def mali_crno_bijeli_logo(self,frame_za_logo):
