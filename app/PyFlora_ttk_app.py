@@ -1,5 +1,5 @@
 import tkinter as tk
-from sqlalchemy import TextClause
+#from sqlalchemy import TextClause
 import ttkbootstrap as ttk
 from tkinter import Button, Label
 from ttkbootstrap.constants import *
@@ -13,10 +13,6 @@ import os
 from SQLAlchemy_seminarski_repo import SQLAlchemyRepozitorij, Korisnik, Biljke, spoji_se_na_bazu
 from seminarsi_dohvati_podatke_weba import *
 
-# s = ttk.Style()
-# s.configure('my.TButton', font=('quicksand', 12))
-# # b = ttk.Button(mainframe, text='Press me', style='my.TButton',
-# # command=foo)
 
 def provjeri_lozinku(lozinka):
     """ ova funkcija provjerava duljinu lozinke;
@@ -101,6 +97,11 @@ class PyFlora:
         korisnik = self.repozitorij.get_user_by_username(username)
         if korisnik: 
             showinfo(f"Korisnik {username} već postoji.")
+            # PROMISLI SVE OPCIJE LOGINA !
+            # user postoji, uđi
+            # user postoji, kriva lozinka
+            # user ne postoji, upiši ga
+            # user ne postoji, krivi login
         else:
             # ZADATAK: Tu dodati provjeru duljine lozinke i/ili kompleksnosti 
             self.repozitorij.create_user(Korisnik(username=username, password=password))
@@ -188,6 +189,8 @@ class PyFlora:
             widget.destroy()
 
     def unos_korisnicko_ime_i_lozinka(self):
+        """ ova metoda piše labele korisnicko ime i lozinka
+            te polja za upis korisnickog imena i lozinke """
         oznaka_username = ttk.Label(
             self.root, text='username', 
             font='quicksand, 14',bootstyle="warning",background='#f3f6f4')
@@ -207,7 +210,8 @@ class PyFlora:
 
     def nacrtaj_naslovnicu_aplikacije(self):
         """ ova metoda je naslovnica aplikacije
-            s gumbom loga za ulaz u aplikaciju 
+            s gumbom loga za ulaz u aplikaciju; 
+            ovdje samo ulazimo u aplikaciju
         """
         self.clear_frame()
         #self.root.title('PyFlora Aplikacija')
@@ -265,7 +269,6 @@ class PyFlora:
             )
         button_novi_korisnik.place(anchor="center",relx=0.5,rely=0.83)
         
-
     def prozor_za_dodavanje_novog_korisnika(self):
         """
         ova metoda crta prozor u kojem cemo registriati NOVOG korisnika
@@ -317,7 +320,6 @@ class PyFlora:
         button_za_nastavak = ttk.Button(
             self.root, text="let's go!", style='warning.TButton', bootstyle="warning-outline", 
             command = self.nacrtaj_treci_prozor_moj_profil,padding=10, width=30)
-
         button_za_nastavak.place(anchor='center',relx=0.5,rely=0.6)
 
         korisnicko_ime = ttk.Label(
@@ -348,7 +350,6 @@ class PyFlora:
         button_prikaz_biljaka = ttk.Button(frame_za_gumbe, text="pogledaj svoje biljke", 
             command=self.prikaz_liste_PyPosuda, bootstyle="warning-outline",padding=10, width=30)
         button_prikaz_biljaka.grid(column=3, columnspan=3, row=3, ipadx=10, ipady=3,padx=10, pady=10, sticky="ew")
-
 
         button_podaci = ttk.Button(frame_za_gumbe,text='moji podaci', 
             bootstyle="warning-outline", padding=10, width=30) # nedostaje jos command = ?
@@ -381,7 +382,6 @@ class PyFlora:
         self.ime_nove_biljke = ttk.Entry(self.root, bootstyle="warning")
         self.ime_nove_biljke.place(anchor="center",relx=0.4,rely=0.3)
 
-
         slika_nove_biljke = ttk.Label(self.root, text='odaberite sliku',
         font='quicksand, 14',bootstyle="warning",background='#f3f6f4') 
         #font="quicksand, 13",bootstyle="light-inverse" )
@@ -392,32 +392,28 @@ class PyFlora:
             command=self.otvori_i_spremi_sliku_biljke_od_korisnika, bootstyle="warning-outline", padding=10, width=20)
         button_dodaj_novu_sliku.place(anchor="center",relx=0.4,rely=0.4)
 
-        # ovdje treba dodati gumb koji ce nas opet povezati na listu s biljkama
-
+        #gumb koji ce nas opet povezati na listu s biljkama
         button_prikazi_listu_PyFlora_posuda= ttk.Button(
             self.root, text='POGLEDAJ SVOJE BILJKE',  
             command=self.prikaz_liste_PyPosuda,  bootstyle="warning", padding=10, width=30)
         button_prikazi_listu_PyFlora_posuda.place(anchor="center",relx=0.4,rely=0.6)
         
     def otvori_i_spremi_sliku_biljke_od_korisnika(self):
-        """ 
-            ova metoda otvara biljku iz foldera korisnika 
+        """ ova metoda otvara biljku iz foldera korisnika 
             i sprema je u isti folder 
-            s imenom koje je korisnik odabrao
-        """
+            s imenom koje je korisnik odabrao """
         # otvaranje slike iz foldera
         photo_filename = filedialog.askopenfilename(title ='Open image')
         img = Image.open(str(photo_filename))
         img = img.resize((150, 110))
         label_slika = ImageTk.PhotoImage(img)
         
-
         # spremanje slike i putanje u folder
         putanja_slike = f'{self.ime_nove_biljke.get()}.jpg'
 
         if img:
                 nova_slika = f'{self.ime_nove_biljke.get()}.jpg'
-                #profilna_slika_ime= f"profilna_slika_{username}.jpg"
+                
                 putanja_do_slike = spoji_sliku_s_folderom(nova_slika)
                 # na disk spremamo sa punom putanjom da se ne spremi 
                 # u folderu iz kjeg je pozvana aplikacija
@@ -426,12 +422,11 @@ class PyFlora:
         else:
                 nova_slika = ""
             # u bazu putanju do slike spremamo samo ime slike
-        self.repozitorij.spremi_biljku(
-                Biljke(
+        self.repozitorij.spremi_biljku(Biljke(
                     ime_biljke=self.ime_nove_biljke.get(),
                     slika_biljke=nova_slika)
                 )
-        showinfo(title="Wohooo!", message=f"Slika {putanja_slike} uspješno spremljena!")
+        showinfo(title="YES!", message=f"Slika '{putanja_slike}' uspješno spremljena!")
 
     def spremi_novu_biljku_u_bazu(self, ime_nove_biljke, odabrana_slika):
         """ 
@@ -445,14 +440,14 @@ class PyFlora:
         pass
 
     def gumb_sinkronizacije(self):
-        """ ova metoda za sada povezuje gui s bazom;
+        """ ova metoda sada ne radi ništa;
+            prije je povezivala gui s bazom;
             radi sinkronizaciju biljaka """
         self.pocetna_slikica()
 
         gumb_sinkronizacije = ttk.Button(self.root,
                         text="sinkronizacija", 
                         #command=main(ime_baze="SQLite_Baza_PyFlora.sqlite"),
-                        #style="warning-toolbutton",
                         style="warning.TButton",
                         padding=10, width=16)
         gumb_sinkronizacije.place(x=766,y=70)
@@ -533,13 +528,13 @@ class PyFlora:
             slika_livo.image = label_slika
             slika_livo.place(anchor='center', relx=0.5, rely=0.5)
         else:
-            self.ubaci_tekst_u_label(neki_frame, f"Slika\n {putanja_slike}\n nije pronađena")
+            self.ubaci_tekst_u_label(neki_frame, f"Slika\n {putanja_slike}\n nije pronađena",font="quicksand, 10",bootsytle="warning")
 
-    def ubaci_tekst_u_label(self, neki_frame,ime_slike):
+    def ubaci_tekst_u_label(self, neki_frame,ime_slike,font,bootsytle):
         oznaka = ttk.Label(
             neki_frame, 
             text=f'{ime_slike}',
-            font="quicksand, 10", justify='left',bootstyle="warning")   # svijetlo zuta - FFE890
+            justify='left',bootstyle=bootsytle, font=font) #font="quicksand, 10"  # svijetlo zuta - FFE890
         oznaka.place(anchor ='nw', relx=0.05,rely=0.2)
 
 
@@ -572,20 +567,20 @@ class PyFlora:
         self.pocetna_slikica()
         self.nacrtaj_header("PyFlora Posuda: Biljke") 
 
-        baza_biljaka=session.execute(TextClause("SELECT * FROM biljke"))
+        baza_biljaka=session.execute("SELECT * FROM biljke")#(TextClause("SELECT * FROM biljke"))
         stupac = 0
         redak = 0
         
         for biljka in baza_biljaka: 
             # frameovi
-            pape  =  ttk.Frame(self.root,  width=300,  height=200, borderwidth=1, relief='raised', style="deafult")
-            pape.grid(row=redak, column=stupac, padx=31, pady=70) #pady=110
+            glavni_frame  =  ttk.Frame(self.root,  width=300,  height=200, borderwidth=1, relief='raised', style="deafult")
+            glavni_frame.grid(row=redak, column=stupac, padx=31, pady=70) #pady=110
             # pape = self.dodaj_redak(redak,stupac*2,1)
-            dite_livo = self.dodaj_frame(pape,redak,0,"warning")    # svijetlo zuta - FFE890
-            dite_desno = self.dodaj_frame(pape,redak,1,"default")   # svijetlo zuta - FFE890
+            lijevi_frame = self.dodaj_frame(glavni_frame,redak,0,"warning")    # svijetlo zuta - FFE890
+            desni_frame = self.dodaj_frame(glavni_frame,redak,1,"default")   # svijetlo zuta - FFE890
             
-            self.ubaci_sliku_u_label(dite_livo, putanja_slike=biljka.slika_biljke) 
-            self.ubaci_tekst_u_label(dite_desno, biljka.ime_biljke)
+            self.ubaci_sliku_u_label(lijevi_frame, putanja_slike=biljka.slika_biljke) 
+            self.ubaci_tekst_u_label(desni_frame, biljka.ime_biljke,font="quicksand, 10",bootsytle="warning")
             
 
             #PITANJE ZA UCU
@@ -595,7 +590,7 @@ class PyFlora:
             # gumb_info_livo = ttk.Button(dite_livo,text="INFO",bootstyle="warning",
             #                         padding=2,command=self.prikaz_detalja_o_biljci) 
             # gumb_info_livo.place(anchor="center",relx=0.5,rely=0.85)
-            status_biljke = ttk.Label(dite_desno, text='Status: ',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
+            status_biljke = ttk.Label(desni_frame, text='Status: ',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
             status_biljke.place(anchor ='s',relx=0.3,rely=0.95)
             
             stupac += 1
@@ -636,17 +631,20 @@ class PyFlora:
         self.clear_frame()
         self.pocetna_slikica()
         self.nacrtaj_header("PyFlora Posuda: Biljka") 
-    
+
+        frame_za_tekst = ttk.Frame(self.root, width=90,height=40,padding=2,borderwidth=0)
+        frame_za_tekst.place(anchor="center",relx=0.2,rely=0.2)
         # kako spojiti odabranu sliku klikom na gumb s bazom i detaljima o biljci???
-        baza_biljaka=session.execute(TextClause("SELECT * FROM biljke"))
+        baza_biljaka=session.execute("SELECT * FROM biljke")#(TextClause("SELECT * FROM biljke"))
+        
         for biljka in baza_biljaka:
-            img= self.dohvati_sliku(width=150, height=95,ime_slike=biljka.slika_biljke)
+            img = self.dohvati_sliku(width=250, height=165,ime_slike=biljka.slika_biljke)
             if img is not None:
                 label_slika = ImageTk.PhotoImage(img)
                 slika_biljke = ttk.Label(self.root, image=label_slika,bootstyle="light-inverse",borderwidth=0)
                 slika_biljke.image = label_slika
-                slika_biljke.place(anchor='center', relx=0.5, rely=0.5)
-                self.ubaci_tekst_u_label(self.root,ime_slike=biljka.ime_biljke)
+                slika_biljke.place(anchor='center', relx=0.2, rely=0.5)
+                self.ubaci_tekst_u_label(frame_za_tekst,ime_slike=biljka.ime_biljke,font="quicksand, 15",bootsytle="dark")
 
 
     def mali_crno_bijeli_logo(self,frame_za_logo):

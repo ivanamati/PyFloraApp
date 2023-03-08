@@ -23,7 +23,7 @@ def pokreni_aplikaciju(ime_baze):
     #repozitorij.delete_all_biljke()
     #repozitorij.delete_biljka(8)
     #repozitorij.delete_biljka(4)
-    repozitorij.delete_biljka(5)
+    repozitorij.delete_biljka(3)
 
 
     #spremi_biljku_u_bazu(repozitorij)
