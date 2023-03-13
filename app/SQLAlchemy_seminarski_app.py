@@ -1,10 +1,18 @@
-from SQLAlchemy_seminarski_repo import Korisnik, SQLAlchemyRepozitorij, spoji_se_na_bazu
+from SQLAlchemy_seminarski_repo import Korisnik, Biljke, SQLAlchemyRepozitorij, spoji_se_na_bazu
 
 def kreiraj_korisnika(repozitorij):
     korisnicko_ime = input("Unesite ime korisnika: ")
     lozinka = input ("Unesite lozinku: ")
     user = Korisnik(username = korisnicko_ime, password = lozinka)
     repozitorij.create_user(user)
+
+def spremi_biljku_u_bazu(repozitorij):
+    zeljena_biljka = input("Unesite ime biljke: ")
+    putanja_do_biljke = input("Unesite naziv fotografije: ")
+
+    moja_biljka = Biljke(ime_biljke = zeljena_biljka, slika_biljke= putanja_do_biljke)
+
+    repozitorij.spremi_biljku(moja_biljka)
 
 def kreiraj_korisnika_koji_ne_postoji(repozitorij):
     korisnicno_ime = input("Unesi korisnicko ime: ")
@@ -44,19 +52,37 @@ def pokreni_aplikaciju(ime_baze):
     repozitorij = SQLAlchemyRepozitorij(session)
 
     #repozitorij.delete_user(11)
+    # while True:
+    #     print('*'*50)
+    #     print('Ovo su trenutni korisnici u bazi: ')
+    #     repozitorij.get_all_users()
+    #     kreiraj_korisnika(repozitorij)
+
+    #     novi_korisnik = input("Zelite li unijeti novoga, odaberite da za nastavak ")
+    #     if novi_korisnik == "ne":
+    #         break
+
+
+    #repozitorij.delete_biljka(4)
+    #print('*'*50)
+    #print('Ovo su trenutni korisnici u bazi: ')
+    #repozitorij.get_all_users()
     #kreiraj_korisnika(repozitorij)
-    print('*'*50)
-    print('Ovo su trenutni korisnici u bazi: ')
-    repozitorij.get_all_users()
+
+
+    #spremi_biljku_u_bazu(repozitorij)
+    # print('*'*50)
+    # print('Ovo su trenutne slike u bazi: ')
+    # repozitorij.get_all_biljke()
 
     #print("Sad ćemo provjeriti korisnika:")
     #kreiraj_korisnika_koji_ne_postoji (repozitorij)
 
     #repozitorij.delete_all_users()
-    repozitorij.delete_user(10) # ovime sam izbrisala usera pod id-em 10
+    #repozitorij.delete_user(4) # ovime sam izbrisala usera pod id-em 10
 
 
 
 # ovime se postiže da se kod importa ovog modula ne izvodi ništa
 if __name__ == "__main__":
-    pokreni_aplikaciju("SQLite_Baza_PyFlora.sqlite")
+    pokreni_aplikaciju("SQL_PyFlora_Baza.sqlite")
