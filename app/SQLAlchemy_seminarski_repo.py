@@ -20,10 +20,21 @@ class Biljke(Base):
     id = db.Column(db.Integer, primary_key=True)
     ime_biljke = db.Column(db.String(250), unique=True, nullable = False)
     slika_biljke = db.Column(db.String)
+    # dodati njegu biljke!!!
+
     #slika_biljke = db.Column(db.BLOB)
 
     def ispisi_podatke(self):
         print(f"ID={self.id}, naziv_biljke = {self.ime_biljke}, putanja do slike = {self.slika_biljke}") 
+
+class PyPosude(Base):
+    __tablename__ = "posude"
+    id = db.Column(db.Integer, primary_key=True)
+    ime_posude = db.Column(db.String(250), unique=True, nullable = False)
+    posadena_biljka = db.Column(db.String) # moze li se ovo povezati s onim kao u autoru i blogu?
+
+    def ispisi_podatke(self):
+        print(f"ID={self.id}, ime posude = {self.ime_posude}, posadena biljka = {self.posadena_biljka}")
 
 def spoji_se_na_bazu(ime_baze):
     """
@@ -159,10 +170,10 @@ class SQLAlchemyRepozitorij:
         for biljka in self.session.query(Biljke).all():
             biljka.ispisi_podatke()
 
-    def spoji_repozitorij_s_bazom(ime_baze):
-        session = spoji_se_na_bazu(ime_baze)
-        repozitorij2 = SQLAlchemyRepozitorijBiljke(session)
-        return repozitorij2
+    # def spoji_repozitorij_s_bazom(ime_baze):
+    #     session = spoji_se_na_bazu(ime_baze)
+    #     repozitorij2 = SQLAlchemyRepozitorijBiljke(session)
+    #     return repozitorij2
 
     def delete_biljka(self, id):
         biljka = self.select_biljka_by_id(id)
@@ -177,51 +188,22 @@ class SQLAlchemyRepozitorij:
     def koliko_biljaka_imamo_u_bazi(self):
         return self.session.query(Biljke).count()
 
+    def spremi_posudu(self, posuda: PyPosude):
+        """
+        spremi objekt tipa PyPosude u bazu i vrati isti objekt natrag
+        :param djelatnik: objekt tipa PyPosude
+        :type djelatnik: PyPosude
+        :return: PyPosude
+        :rtype: PyPosude
+        """
 
-
+        # INSERT INTO Employees(id, name, email) VALUES(?, ?, ?)
+        self.session.add(posuda)
+        self.session.commit()
+        return posuda
     
 
-# class Biljke(Base):
-#     __tablename__ = "biljke"
-#     id = db.Column(db.Integer, primary_key=True)
-#     ime_biljke = db.Column(db.String(250), unique=True, nullable = False)
-#     slika_biljke = db.Column(db.String)
 
-#     # treba li jos nesto?
-
-#     def ispisi_podatke(self):
-#         print(f"ID={self.id}, naziv_biljke = {self.ime_biljke}, putanja do slike = {self.slika_biljke}") 
-
-# def spoji_se_na_bazu(ime_baze):
-#     """
-#     Glavna funkcija ovog modula
-#     Spaja se na bazu i kreria tablicu ako ne postoji
-#     """
-#     # Povezimo se s bazom koristeci SQLAlchemy
-#     db_engine = db.create_engine(f"sqlite:///{ime_baze}")
-
-#     # Kreiraj bazu sa tablicom koju smo deklarirali u klasi Korisnik
-#     # odnosno izvršit će SQL upit:
-#     """
-#         CREATE TABLE IF NOT EXISTS Korisnici (
-#             id INTEGER PRIMARY KEY,
-#             username TEXT NOT NULL UNIQUE,
-#             password TEXT NOT NULL, 
-#         );
-#     """
-#     Base.metadata.create_all(db_engine)
-
-#     # otvori konekciju koju ćemo koristiti za upite prema bazi
-#     Session = sessionmaker()
-#     Session.configure(bind=db_engine)
-#     session = Session()
-#     return session
-
-class SQLAlchemyRepozitorijBiljke:
-
-    def __init__(self, session):
-        # ovo je session koji dobijemo nakon poziva funkcije spoji_se_na_bazu
-        self.session = session
 
     # def spremi_biljku(self, biljka: Biljke):
     #     """

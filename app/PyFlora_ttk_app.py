@@ -155,8 +155,8 @@ class PyFlora:
         button_s_gridom(frame_za_gumbe,"warning-outline","pogledaj svoje biljke",self.prozor_prikaz_biljaka_PyPosuda,10,30,
                         column=3,columnspan=3,row=3,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
         
-        button_s_gridom(frame_za_gumbe,"warning-outline","pogledaj svoje posude",#self.prozor_prikaz_posuda_PyPosuda,
-                        None,10,30,
+        button_s_gridom(frame_za_gumbe,"warning-outline","pogledaj svoje posude",self.prozor_prikaz_posuda_PyPosuda,
+                        10,30,
                         column=3,columnspan=3,row=4,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
         
         button_s_gridom(frame_za_gumbe,"warning-outline","moji podaci",None,10,30,
@@ -230,10 +230,10 @@ class PyFlora:
         
         for biljka in baza_biljaka: 
             # frameovi
-            glavni_frame  =  ttk.Frame(self.root,  width=300,  height=200, borderwidth=1, relief='raised', style="deafult")
+            glavni_frame  =  ttk.Frame(self.root,  width=100,  height=100, borderwidth=1, relief='raised', style="deafult")
             glavni_frame.grid(row=redak, column=stupac, padx=31, pady=70) #pady=110
             # pape = self.dodaj_redak(redak,stupac*2,1)
-            lijevi_frame = dodaj_frame(glavni_frame,redak,0,"warning")    # svijetlo zuta - FFE890
+            lijevi_frame = dodaj_frame(glavni_frame,redak,0,"light")    # svijetlo zuta - FFE890
             desni_frame = dodaj_frame(glavni_frame,redak,1,"default")   # svijetlo zuta - FFE890
             
             self.ubaci_sliku_u_label(lijevi_frame, putanja_slike=biljka.slika_biljke, id_slike=biljka.id) 
@@ -249,6 +249,14 @@ class PyFlora:
                 stupac = 0 
         dodajmo_novu_biljku_na_listu(self.root,redak,stupac,self.dodajte_novu_biljku_iz_foldera)
 
+    def prozor_prikaz_posuda_PyPosuda(self):
+        """
+        ova metoda crta prozor u kojem su prikazane
+        sve PyPosude iz baze
+        """
+        self.root.title ("PyFlora Posuda: ovo su vaše pametne posude")
+        glavni_prozor_aplikacije(self.root,"PyFlora Posuda: PyPosude",self.nacrtaj_treci_prozor_moj_profil)
+
     def prozor_s_detaljima_o_biljci(self, id_slike):
         """ 
         ova metoda crta prozor 
@@ -263,9 +271,10 @@ class PyFlora:
 
         label(frame_za_tekst,"Karakteristika 1:\n\nKarakteristika 2:\n\nKarakteristika 3:",
               ('Quicksand',10),"dark",None,None,"nw",0.02,0.5)
-        prikaz_biljke_prema_id_u_bazi(self.root,frame_za_tekst,session,id_slike)
         button(self.root,"warning.TButton.Outline",None,"BACK",self.prozor_prikaz_biljaka_PyPosuda,10,16,
                "center",0.875,0.22)
+        prikaz_biljke_prema_id_u_bazi(self.root,frame_za_tekst,session,id_slike)
+
              
     def prozor_prikaz_korisnika(self):
         """ 

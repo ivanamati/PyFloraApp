@@ -19,13 +19,13 @@ def clear_frame(root):
 
 def mali_crno_bijeli_logo(frame_za_logo):
     manji_image = Image.open("media\PyFlora_crno_bijela.jpg")
-    manja_slika = ImageTk.PhotoImage(manji_image.resize((75,50)))
+    manja_slika = ImageTk.PhotoImage(manji_image.resize((65,40)))
     # drugo - predajemo sliku labelu (mozemo i buttonu i pozadini i...)
     label_sa_slikom = ttk.Label(frame_za_logo, image=manja_slika,relief='flat',style="warning")
     label_sa_slikom.image = manja_slika
     #label_sa_slikom.place(anchor="center",relx=0.5,rely=0.5)
     # trece - postavljamo je na ekranu; radi i place i pack
-    label_sa_slikom.place(anchor="nw", relx = 0.65,rely=0.005)
+    label_sa_slikom.place(anchor="center", relx = 0.65,rely=0.5)
 
 def velika_slika_posred_ekrana(root,slika):
     root.title('PyFlora Aplikacija')
@@ -122,7 +122,7 @@ def dodaj_redak(root, redni_broj, stupac, broj_stupaca):
 def dodaj_frame(parent_frame,  red, stupac, style):
     frame_child = ttk.Frame(
         parent_frame, 
-        width=125, height=175, borderwidth=0, relief="flat", style=style
+        width=105, height=105, borderwidth=0, relief="flat", style=style
         )
     frame_child.grid(row=red, column=stupac)
     return frame_child
@@ -136,19 +136,19 @@ def dodaj_frame_place(frame,relief,borderwidth,width,height,cursor,style,anchor,
 
 def dodaj_frame_za_novu_biljku(root,redni_broj,stupac):# broj_stupaca):
     frame_za_novu_biljku = ttk.Frame(
-        root,  width=280,  height=180, 
+        root,  width=50,  height=50, 
         borderwidth=2, relief='raised', style="deafult") #bg='#AFE1AF'
     frame_za_novu_biljku.grid(row=redni_broj, column=stupac, 
         #columnspan=broj_stupaca, 
         padx=10, pady=70)
-    mali_crno_bijeli_logo(frame_za_novu_biljku)
+    #mali_crno_bijeli_logo(frame_za_novu_biljku)
     return frame_za_novu_biljku
     
 def gumb_za_novu_biljku(root, command_button): # ne radi promjena pozadinske boje gumba! ZASTO???
     button_nova_biljka = ttk.Button(root,text="nova biljka", 
         command= command_button, #self.dodajte_novu_biljku_iz_foldera,
-        padding=10,width=10,bootstyle="warning-outline-toolbutton") 
-    button_nova_biljka.grid(column=0, columnspan=3, row=1, ipadx=16, ipady=13, padx=70, pady=55)
+        padding=5,width=8,bootstyle="warning-outline-toolbutton") 
+    button_nova_biljka.grid(column=0, columnspan=3, row=1, ipadx=16, ipady=13, padx=55, pady=30)
 
 def naslovnica(root,gumb):
     """ ova metoda je naslovnica aplikacije
