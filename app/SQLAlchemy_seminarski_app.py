@@ -1,4 +1,4 @@
-from SQLAlchemy_seminarski_repo import Korisnik, Biljke, SQLAlchemyRepozitorij, spoji_se_na_bazu
+from SQLAlchemy_seminarski_repo import Korisnik, Biljke, PyPosude,SQLAlchemyRepozitorij, spoji_se_na_bazu
 
 def kreiraj_korisnika(repozitorij):
     korisnicko_ime = input("Unesite ime korisnika: ")
@@ -13,6 +13,14 @@ def spremi_biljku_u_bazu(repozitorij):
     moja_biljka = Biljke(ime_biljke = zeljena_biljka, slika_biljke= putanja_do_biljke)
 
     repozitorij.spremi_biljku(moja_biljka)
+
+def spremi_posudu_u_bazu(repozitorij):
+    ime_posude = input("Unesite ime posude: ")
+    posadena_biljka = input("Unesite naziv fotografije: ")
+
+    moja_posuda = PyPosude(ime_posude = ime_posude, posadena_biljka= posadena_biljka)
+
+    repozitorij.spremi_posudu(moja_posuda)
 
 def kreiraj_korisnika_koji_ne_postoji(repozitorij):
     korisnicno_ime = input("Unesi korisnicko ime: ")
