@@ -1,4 +1,4 @@
-from SQLAlchemy_seminarski_repo import Korisnik, Biljke, PyPosude,SQLAlchemyRepozitorij, spoji_se_na_bazu
+from PYFlora_baza_repozitorij import Korisnik, Biljke, PyPosude,SQLAlchemyRepozitorij, spoji_se_na_bazu
 
 def kreiraj_korisnika(repozitorij):
     korisnicko_ime = input("Unesite ime korisnika: ")
@@ -9,16 +9,22 @@ def kreiraj_korisnika(repozitorij):
 def spremi_biljku_u_bazu(repozitorij):
     zeljena_biljka = input("Unesite ime biljke: ")
     putanja_do_biljke = input("Unesite naziv fotografije: ")
+    zalijevanje = input("Zalijevanje jednom dnevno, tjedno ili mjesecno: ")
+    mjesto = input("Čuvati je na toplom/hladnom, tamnom/svijetlom mjestu: ")
+    supstrat = input ("Dodati supstrat? da ili ne: ")
 
-    moja_biljka = Biljke(ime_biljke = zeljena_biljka, slika_biljke= putanja_do_biljke)
+
+    moja_biljka = Biljke(ime_biljke = zeljena_biljka, slika_biljke= putanja_do_biljke,
+                         zalijevanje= zalijevanje, mjesto= mjesto, supstrat= supstrat)
 
     repozitorij.spremi_biljku(moja_biljka)
 
 def spremi_posudu_u_bazu(repozitorij):
     ime_posude = input("Unesite ime posude: ")
-    posadena_biljka = input("Unesite naziv fotografije: ")
+    posadena_biljka = input("Unesite naziv fotografije biljke: ")
+    slika_posude = input("Unesite ime fotografije posude: ")
 
-    moja_posuda = PyPosude(ime_posude = ime_posude, posadena_biljka= posadena_biljka)
+    moja_posuda = PyPosude(ime_posude = ime_posude, posadena_biljka= posadena_biljka, slika_posude=slika_posude)
 
     repozitorij.spremi_posudu(moja_posuda)
 
@@ -70,17 +76,24 @@ def pokreni_aplikaciju(ime_baze):
     #     if novi_korisnik == "ne":
     #         break
 
+    spremi_posudu_u_bazu(repozitorij)
+    #repozitorij.delete_posuda(3)
 
-    #repozitorij.delete_biljka(4)
+    # repozitorij.delete_biljka(1)
+    # repozitorij.delete_biljka(2)
+    # repozitorij.delete_biljka(3)
+    # repozitorij.delete_biljka(4)
     #print('*'*50)
     #print('Ovo su trenutni korisnici u bazi: ')
     #repozitorij.get_all_users()
     #kreiraj_korisnika(repozitorij)
 
-
-    #spremi_biljku_u_bazu(repozitorij)
-    # print('*'*50)
     # print('Ovo su trenutne slike u bazi: ')
+    # repozitorij.get_all_biljke()
+
+    # spremi_biljku_u_bazu(repozitorij)
+    # print('*'*50)
+    # print('A ovo su biljke nakon unosa:')
     # repozitorij.get_all_biljke()
 
     #print("Sad ćemo provjeriti korisnika:")

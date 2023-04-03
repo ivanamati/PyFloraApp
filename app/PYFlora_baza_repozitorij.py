@@ -2,6 +2,7 @@ from enum import unique
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import TextClause
 
 Base = declarative_base()
 
@@ -20,18 +21,20 @@ class Biljke(Base):
     id = db.Column(db.Integer, primary_key=True)
     ime_biljke = db.Column(db.String(250), unique=True, nullable = False)
     slika_biljke = db.Column(db.String)
-    # dodati njegu biljke!!!
-
-    #slika_biljke = db.Column(db.BLOB)
-
+    zalijevanje = db.Column(db.String) #jednom dnevno/tjedno/mjesecno
+    mjesto = db.Column(db.String) #tamno/svijetlo, toplo/hladno
+    supstrat = db.Column(db.String) #da/ne
+ 
     def ispisi_podatke(self):
         print(f"ID={self.id}, naziv_biljke = {self.ime_biljke}, putanja do slike = {self.slika_biljke}") 
+        print(f"zalijeva se jednom {self.zalijevanje}, odgovara joj {self.mjesto} mjesto, supstrat: {self.supstrat}")
 
 class PyPosude(Base):
-    __tablename__ = "posude"
+    __tablename__ = "pyposude"
     id = db.Column(db.Integer, primary_key=True)
     ime_posude = db.Column(db.String(250), unique=True, nullable = False)
-    posadena_biljka = db.Column(db.String) # moze li se ovo povezati s onim kao u autoru i blogu?
+    slika_posude = db.Column(db.String)
+    posadena_biljka = db.Column(db.String,db.ForeignKey("biljke.id")) # moze li se ovo povezati s ovako?
 
     def ispisi_podatke(self):
         print(f"ID={self.id}, ime posude = {self.ime_posude}, posadena biljka = {self.posadena_biljka}")
@@ -140,18 +143,33 @@ class SQLAlchemyRepozitorij:
         self.session.commit()
         return biljka
 
-    def azuriraj_biljku(self, biljka):
+    def azuriraj_biljku(self,biljka):
         """
         promijeni objekt tipa Employee u bazi i vrati isti objekt natrag
 
         NE sprema se novi!
-
         :param djelatnik: objekt tipa Employee
         :type djelatnik: Employee
         :return: Employee
         :rtype: Employee
         """
+        #return self.session.commit()
         return self.spremi_biljku(biljka)
+    
+    def update_biljka(self,ime_baze,ime_biljke,zalijevanje, mjesto,supstrat,id_biljke):
+        """ ova metoda klase se najprije spaja na bazu i kada zavrsi svoju radnju,
+        zatvara bazu pomocu opcije 'with';
+        zatim ulazi u bazu i mijenja zadane parametre biljke na tom id-u
+        pomocu podataka koje je unio korisnik na gui u prozoru 'prozor_azuriraj_biljku_iz_baze'
+        """
+        with spoji_se_na_bazu(ime_baze) as session:
+            session.execute(TextClause(f"UPDATE biljke SET ime_biljke = '{ime_biljke}', zalijevanje='{zalijevanje}', mjesto='{mjesto}', supstrat='{supstrat}' WHERE id = {id_biljke}"))
+            session.commit()
+
+    def konekcija_s_bazom(self,ime_baze):
+        db_engine = db.create_engine(f"sqlite:///{ime_baze}")
+        return db_engine
+
 
     def select_biljka_by_id(self, id):
         """
@@ -201,6 +219,21 @@ class SQLAlchemyRepozitorij:
         self.session.add(posuda)
         self.session.commit()
         return posuda
+    
+    def select_posuda_by_id(self, id):
+        """
+        SELECT * FROM PyPosude 
+        WHERE ID = ? 
+        LIMIT = 1
+        """
+        # ako nemamo u bazi zapisa koji ima ID = id, ovo vraća None!
+        return self.session.query(PyPosude).filter_by(id=id).first()
+    
+    def delete_posuda(self, id):
+        posuda = self.select_posuda_by_id(id)
+        if posuda:
+            self.session.delete(posuda)
+        self.session.commit()
     
 
 
