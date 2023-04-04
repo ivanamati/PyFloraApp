@@ -8,9 +8,8 @@ from datetime import datetime, timedelta
 
         # osmisliti klasu umjesto dicta iz dohvati_podatke
         # u klasi nam teba biti kojeg je tipa senzor i koja je vrijednost i dodati jedinicu
-# DODAJ class Jagodica iz Učinog koda
 
-class Jagodica:
+class Jagodica:         
     def __init__(self, senzori):
         self.senzori = senzori
 
@@ -19,8 +18,7 @@ class Jagodica:
         for senzor in self.senzori:
             data.append(senzor.dohvati_podatke()) #dohvati_podatke
         return data
-
-
+        
 class PodaciSaSenzora:
     def __init__(self, ime_senzora, vrijednost, mjerna_jedinica,vrijeme_dohvata):
         self.ime_senzora = ime_senzora
@@ -36,7 +34,6 @@ class PodaciSaSenzora:
             return self.vrijednost == drugi_objekt.vrijednost
         return False
 
-       
 class SenzoriZaRaspberryPi:
     def __init__(self,ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica):
         self.name = ime_senzora
@@ -46,11 +43,6 @@ class SenzoriZaRaspberryPi:
         # ovo dodajem iz Učinog koda
         self.value = 0
         self.vrijeme_dohvata = datetime.now()
-
-    # def generiraj_vrijednost(self):
-    # ovo vise ne koristimo
-    #     self.vrijeme_dohvata += timedelta(minutes=15)
-    #     return random.randint(self.min_vrijednost, self.max_vrijednost)
     
     def generiraj_vrijednost(self):
         self.vrijeme_dohvata += timedelta(minutes=15)
@@ -73,7 +65,7 @@ class SenzoriZaRaspberryPi:
         # vraca podatke sa senzora,
         # ali kao klasu umjesto dicta iz prethodne metode
         vrijednost = self.generiraj_vrijednost()
-        podaci_sa_senzora = PodaciSaSenzora(self.name, vrijednost,self. mjerna_jedinica,self.vrijeme_dohvata.strftime("%Y-%m-%d %H:%M"))
+        podaci_sa_senzora = PodaciSaSenzora(self.name, vrijednost,self.mjerna_jedinica,self.vrijeme_dohvata.strftime("%Y-%m-%d %H:%M"))
         return podaci_sa_senzora
 
 senzor_temperature = SenzoriZaRaspberryPi(
@@ -85,12 +77,29 @@ senzor_tlaka = SenzoriZaRaspberryPi(
 )
 
 senzor_vlage = SenzoriZaRaspberryPi(
-    ime_senzora="VLAGA", max_vrijednost=100, min_vrijednost=0, mjerna_jedinica="%"
+    ime_senzora="VLAŽNOST ZEMLJE", max_vrijednost=100, min_vrijednost=0, mjerna_jedinica="%"
 )
 
-raspberry_pi = Jagodica([senzor_temperature, senzor_tlaka, senzor_vlage])
+senzor_kiselosti = SenzoriZaRaspberryPi(
+    ime_senzora="KISELOST", max_vrijednost=14, min_vrijednost=0, mjerna_jedinica="pH" 
+) #7 je neutralno
 
+senzor_saliniteta = SenzoriZaRaspberryPi(
+    ime_senzora="SALINITET", max_vrijednost=15, min_vrijednost=0, mjerna_jedinica="dS/m" #deciSiemens po metru
+)
 
+senzor_svjetlosti = SenzoriZaRaspberryPi(
+    ime_senzora="SVJETLOST", max_vrijednost=150, min_vrijednost=0, mjerna_jedinica="lx"
+)
+
+raspberry_pi_jagodica = Jagodica([senzor_temperature, senzor_tlaka, senzor_vlage])
+
+# ovo je raspberry pi za senzore PyFlora posude koji sadrzi senzore za vlaznost zemlje, ph, salinitet zemlje te razinu svjetlosti
+raspberry_pi = Jagodica([senzor_vlage,senzor_kiselosti,senzor_saliniteta,senzor_svjetlosti])
+
+# vlažnosti zemlje
+# - pH vrijednosti i saliniteta zemlje
+# - razine svjetla koje dopire do biljke
 
 def ocitanje_vrijednosti(ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica):
     senzor = SenzoriZaRaspberryPi(ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica)

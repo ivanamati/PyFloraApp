@@ -59,14 +59,20 @@ def dohvati_sve_biljke_iz_baze_i_nacrtaj_u_gui(root,session,gui_objekt):
     redak = 0
     
     for biljka in baza_biljaka: 
-        glavni_frame  = dodaj_frame(root,'raised',redak,stupac,"white",10,10,1,23,70) 
-        lijevi_frame = dodaj_frame(glavni_frame,"flat",redak,0,"white",width=105,height=155,borderwidth=0,padx=None,pady=None)    # svijetlo zuta - FFE890
-        desni_frame = dodaj_frame(glavni_frame,"flat",redak,1,"default",width=105,height=155,borderwidth=0,padx=None,pady=None)   # svijetlo zuta - FFE890
+        glavni_frame  = dodaj_frame(root,'raised',redak,stupac,"white",110,145,1,23,20) 
+        lijevi_frame = dodaj_frame(glavni_frame,"flat",redak,0,"white",width=110,height=145,borderwidth=0,padx=None,pady=None)    # svijetlo zuta - FFE890
+        desni_frame = dodaj_frame(glavni_frame,"flat",redak,1,"default",width=100,height=145,borderwidth=0,padx=None,pady=None)   # svijetlo zuta - FFE890
         
-        ubaci_sliku_kao_button_u_label_biljke(lijevi_frame, putanja_slike=biljka.slika_biljke,id_slike=biljka.id,gui_objekt=gui_objekt,repozitorij=gui_objekt.repozitorij) 
-        ubaci_tekst_u_label(lijevi_frame, biljka.ime_biljke,font="quicksand, 10",bootsytle="warning",relx=0.2,rely=0.1)
+        ubaci_sliku_kao_button_u_label_biljke(glavni_frame, putanja_slike=biljka.slika_biljke,id_slike=biljka.id,gui_objekt=gui_objekt,repozitorij=gui_objekt.repozitorij) 
+        ubaci_tekst_u_label(lijevi_frame, biljka.ime_biljke,font="quicksand, 10",bootsytle="warning",relx=0.5,rely=0.8)
 
-        label(desni_frame,"Status:","quicksand, 8","default","left",None,"s",0.2,0.75)
+        zalijevanje = biljka.zalijevanje
+        mjesto = biljka.mjesto
+        supstrat = biljka.supstrat
+
+        label(
+            glavni_frame,f"'{biljka.ime_biljke}'\nZalijevanje je potrebno jednom {zalijevanje},\npoželjno mjesto je {mjesto}.\nSupstrat:{supstrat}",
+              "quicksand, 8","dark","center",None,"center",0.5,0.75)
       
         stupac += 1      
         if stupac >= 3:
@@ -86,7 +92,7 @@ def ubaci_sliku_kao_button_u_label_biljke(neki_frame, putanja_slike, id_slike,gu
         takoder povezuje prikazanu sliku s njezinim id-om slika je GUMB;
         klikom na njega otvara se prikazan/odabran cvijet
         """
-        img= dohvati_sliku(width=115, height=75,ime_slike=putanja_slike)
+        img= dohvati_sliku(width=105, height=65,ime_slike=putanja_slike)
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
             # ovim gumbom dobivamo prikaz biljke te DOHVACAMO ID biljke iz baze da prikaze podatke bas za tu biljku  
@@ -98,7 +104,7 @@ def ubaci_sliku_kao_button_u_label_biljke(neki_frame, putanja_slike, id_slike,gu
                 command=lambda:gui_objekt.prozor_s_detaljima_o_biljci(id_slike=id_slike)
             )   
             slika_u_lijevom_frameu.image = label_slika
-            slika_u_lijevom_frameu.place(anchor='center', relx=0.5, rely=0.5)
+            slika_u_lijevom_frameu.place(anchor='center', relx=0.5, rely=0.26)
             return id_slike
         else:
             button_s_gridom(neki_frame,"danger-outline",f"izbriši biljku",
@@ -149,7 +155,7 @@ def prikaz_korisnika_prema_id_iz_baze(frame,session,uhvaceni_korisnik):
     label(frame,f"Tvoja lozinka je: {lozinka}",("quicksand",12), "warning",None,None,"center",0.5,0.4)
     label(frame,
           "Za ažuriranje podataka odaberi gumb 'ažuriraj korisnika'\nZa brisanja korisnika odaberi gumb 'izbriši korisnika'\nZa povratak odaberite gumb 'BACK'",
-          ("quicksand",10), "dark","center",None,"center",0.5,0.7)
+          ("quicksand",10), "primary","center",None,"center",0.5,0.7)
 
 def prikaz_biljke_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     """ ova funkcija nakon klika na gumb biljke
@@ -163,7 +169,9 @@ def prikaz_biljke_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
             label_slika = ImageTk.PhotoImage(img)
             slika_biljke = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=15,relief="groove")
             slika_biljke.image = label_slika
-            slika_biljke.place(anchor='center', relx=0.2, rely=0.5)
+            # ovom place metodom se prikazuje slika na zeljenoj poziciji na prozoru GUI-a
+            slika_biljke.place(anchor='center', relx=0.3, rely=0.25)
+            # ova funckija ispisuje samo ime biljke iz baze
             ubaci_tekst_u_label(frame_za_tekst,ime_slike=biljka.ime_biljke,font="quicksand, 15",bootsytle="dark",relx=0.2,rely=0.1)
 
             zalijevanje = biljka.zalijevanje
@@ -173,7 +181,7 @@ def prikaz_biljke_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     # ovdje se ispisuju karakteristike biljaka vezane za NJEGU
     label(frame_za_tekst,
             f"Zalijevanje: jednom {zalijevanje}\n\nMjesto u stanu: {mjesto}\n\nZahtjeva supstrat: {supstrat}",
-            ('Quicksand',10),"dark",None,None,"nw",0.02,0.5)
+            ('Quicksand',10),"dark",None,None,"nw",0.02,0.3)
         
 def dohvati_sliku(width, height,ime_slike):
     if not ime_slike:
@@ -359,7 +367,7 @@ def ubaci_sliku_kao_button_u_label_posude(neki_frame, putanja_slike, id_slike,gu
         takoder povezuje prikazanu sliku s njezinim id-om slika je GUMB;
         klikom na njega otvara se prikazan/odabran cvijet
         """
-        img= dohvati_sliku(width=115, height=75,ime_slike=putanja_slike)
+        img= dohvati_sliku(width=125, height=85,ime_slike=putanja_slike)
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
             # ovim gumbom dobivamo prikaz biljke te DOHVACAMO ID biljke iz baze da prikaze podatke bas za tu biljku  
@@ -371,7 +379,7 @@ def ubaci_sliku_kao_button_u_label_posude(neki_frame, putanja_slike, id_slike,gu
                 command=lambda:gui_objekt.prozor_s_detaljima_o_posudi(id_slike=id_slike)
             )   
             slika_u_lijevom_frameu.image = label_slika
-            slika_u_lijevom_frameu.place(anchor='center', relx=0.5, rely=0.5)
+            slika_u_lijevom_frameu.place(anchor='center', relx=0.5, rely=0.4)
 
         else:
             ubaci_tekst_u_label(neki_frame, f"Slika\n {putanja_slike}\n nije pronađena",
@@ -391,13 +399,13 @@ def dohvati_sve_posude_iz_baze_i_nacrtaj_u_gui(session,frame,gui_objekt):
         # frameovi
 
         glavni_frame  =  ttk.Frame(frame,  width=10,  height=50, borderwidth=1, relief='raised', style="deafult")
-        glavni_frame.grid(row=redak, column=stupac, padx=23, pady=70) #pady=110
+        glavni_frame.grid(row=redak, column=stupac, padx=23, pady=20) #pady=110
         # pape = self.dodaj_redak(redak,stupac*2,1)
-        lijevi_frame = dodaj_frame(glavni_frame,None,redak,0,"white",110,165,None,None,None)    # svijetlo zuta - FFE890
-        desni_frame = dodaj_frame(glavni_frame,None,redak,1,"default",110,165,None,None,None)   # svijetlo zuta - FFE890
+        lijevi_frame = dodaj_frame(glavni_frame,None,redak,0,"white",150,145,None,None,None)    # svijetlo zuta - FFE890
+        desni_frame = dodaj_frame(glavni_frame,None,redak,1,"default",150,145,None,None,None)   # svijetlo zuta - FFE890
         
         ubaci_sliku_kao_button_u_label_posude(lijevi_frame, putanja_slike=posuda.slika_posude,id_slike=posuda.id,gui_objekt=gui_objekt) 
-        ubaci_tekst_u_label(lijevi_frame, posuda.ime_posude,font="quicksand, 10",bootsytle="warning",relx=0.2,rely=0.1)
+        ubaci_tekst_u_label(lijevi_frame, posuda.ime_posude,font="quicksand, 10",bootsytle="warning",relx=0.5,rely=0.8)
 
         posadena_biljka = posuda.posadena_biljka
         posadena_biljka = ttk.Label(desni_frame, text=f'BILJKA:\n{posadena_biljka}',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
@@ -409,7 +417,7 @@ def dohvati_sve_posude_iz_baze_i_nacrtaj_u_gui(session,frame,gui_objekt):
         
         stupac += 1
                     
-        if stupac >= 3:
+        if stupac >= 2:
             redak +=1
             stupac = 0 
 
@@ -423,17 +431,17 @@ def prikaz_posude_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
         img = dohvati_sliku(width=250, height=165,ime_slike=posuda.slika_posude)
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
-            slika_biljke = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=25,relief="groove")
-            slika_biljke.image = label_slika
-            slika_biljke.place(anchor='center', relx=0.18, rely=0.25)
-            ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.1,rely=0.1)
+            slika_posude = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=15,relief="groove")
+            slika_posude.image = label_slika
+            slika_posude.place(anchor='center', relx=0.5, rely=0.25) #prikaz posude gorelijevo: relx=0.18, rely=0.25
+            ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.5,rely=0.1)
 
             ime_posude = posuda.ime_posude
             posadena_biljka = posuda.posadena_biljka
 
     # ovdje se ispisuju karakteristike biljaka vezane za NJEGU
-    label(frame_za_tekst,f"Posuda: '{ime_posude}'\n\nBiljka u posudi: {posadena_biljka}",
-            ('Quicksand',10),"warning",None,None,"nw",0.02,0.5)
+    label(frame_za_tekst,f"Posuda: '{ime_posude}'\nBiljka u posudi: {posadena_biljka}",
+            ('Quicksand',10),"warning",None,None,"nw",0.1,0.7)
     
 def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     """ ova funkcija nakon klika na gumb posude
@@ -447,15 +455,15 @@ def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_
             label_slika = ImageTk.PhotoImage(img)
             slika_biljke = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=15,relief="groove")
             slika_biljke.image = label_slika
-            slika_biljke.place(anchor='center', relx=0.2, rely=0.5)
-            ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.1,rely=0.1)
+            slika_biljke.place(anchor='center', relx=0.5, rely=0.25)
+            ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.5,rely=0.1)
 
             ime_posude = posuda.ime_posude
             posadena_biljka = posuda.posadena_biljka
 
     # ovdje se ispisuju karakteristike biljaka vezane za NJEGU
     label(frame_za_tekst,f"Posuda: '{ime_posude}'\n\n Biljka u posudi: {posadena_biljka}",
-            ('Quicksand',10),"dark",None,None,"nw",0.02,0.5)
+            ('Quicksand',10),"dark",None,None,"nw",0.1,0.7)
     
     
 def proba_prikaza_podataka_o_biljci_iz_baze(ime_baze):

@@ -76,12 +76,12 @@ def pocetna_slikica():
     label1.image = slika
     label1.place(anchor='w', relx=0.5, rely=0.5)
 
-def gumb_sinkronizacije(root):
+def gumb_sinkronizacije(root,command,x,y):
     """ ova metoda sada ne radi ništa;
         prije je povezivala gui s bazom;
         radi sinkronizaciju biljaka """
-    pocetna_slikica()
-    button_s_placeom(root,"sinkronizacija","warning.TButton",None,10,16,830,70)
+    # pocetna_slikica()
+    button_s_placeom(root,"SYNC","warning.outline",command,10,23,x,y)  #"warning.TButton"
 
 def header_za_prvi_i_drugi_prozor(root,background,title):
     """ ova funkcija crta prozor 
@@ -109,10 +109,10 @@ def nacrtaj_header(root, tekst, command_za_button):
     """ova metoda crta header za glavni prozor aplikacije
     koji se prikazuje i svakom prozoru nakon sto se korisnik ulogira"""
     pocetna_slikica()
-    gumb_sinkronizacije(root)
+    #gumb_sinkronizacije(root)
 
-    header_frame = dodaj_frame_place(root,'groove',1,1060,60,None,"light","nw",None,None)
-    label(root,tekst,"warning.TLabel","light-inverse",None,None,"nw",0.1,0.025)
+    header_frame = dodaj_frame_place(root,'groove',1,1060,60,None,"light","nw",None,0.9)
+    label(root,tekst,"warning.TLabel","light-inverse",None,None,"nw",0.12,0.93) #0.1,0.025
 
     manji_image = Image.open("media\PyFlora_crno_zuta.jpg")
     manja_slika = ImageTk.PhotoImage(manji_image.resize((75,50)))
@@ -120,9 +120,9 @@ def nacrtaj_header(root, tekst, command_za_button):
     label_sa_slikom = ttk.Label(root, image=manja_slika,borderwidth=0)
     label_sa_slikom.image = manja_slika
     # trece - postavljamo je na ekranu; radi i place i pack
-    label_sa_slikom.place(anchor="nw", relx = 0.005,rely=0.0085)
+    label_sa_slikom.place(anchor="nw", relx = 0.005,rely=0.91)
 
-    button_s_placeom(header_frame,"moj profil","warning.Outline.TButton",command_za_button,10,16,830,11)
+    button_s_placeom(header_frame,"moj profil","warning.Outline.TButton",command_za_button,10,16,630,11)
 
 def dodaj_redak(root, redni_broj, stupac, broj_stupaca):
     """ova se funkcija ne koristi"""
@@ -263,17 +263,17 @@ def ubaci_tekst_u_label(frame,ime_slike,font,bootsytle,relx,rely):
         frame, 
         text=f'{ime_slike}',
         justify='center',bootstyle=bootsytle, font=font) #font="quicksand, 10"  # svijetlo zuta - FFE890
-    oznaka.place(anchor ='nw', relx=relx,rely=rely)#relx=0.05,rely=0.1)
+    oznaka.place(anchor ='center', relx=relx,rely=rely)#relx=0.05,rely=0.1)
 
 
-def buttoni_za_azuriranje_i_brisanje_podataka(root,azuriraj_izbrisi_koga,command_azuriraj,command_izbrisi,command_BACK):
+def buttoni_za_azuriranje_i_brisanje_podataka(root,azuriraj_izbrisi_koga,command_azuriraj,command_izbrisi,command_BACK,anchor,relx,rely):
     """ova funkcija nudi mogucnost azuriranja i brisanja korisnika"""
-    frame = dodaj_frame_place(root,"raised",1,50,500,"heart","light","ne",0.98,0.35)
+    frame = dodaj_frame_place(root,"raised",1,100,500,"heart","light",anchor=anchor,relx=relx,rely=rely)  #"ne",0.98,0.35
 
     button_s_gridom(frame,"warning.Outline.TButton",f"ažuriraj {azuriraj_izbrisi_koga}",command_azuriraj,10,11,
-                    column=3,columnspan=3,row=2,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+                    column=1,columnspan=1,row=1,ipadx=10,ipady=1,padx=10,pady=10,sticky="ew")
     button_s_gridom(frame,"danger-outline",f"izbriši {azuriraj_izbrisi_koga}",
-                    command_izbrisi,10,11, column=3,columnspan=3,row=3,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+                    command_izbrisi,10,11, column=2,columnspan=1,row=1,ipadx=10,ipady=1,padx=10,pady=10,sticky="ew")
     button_s_gridom(frame,"warning-outline","BACK",command_BACK,10,11,
-                    column=3,columnspan=3,row=5,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+                    column=3,columnspan=1,row=1,ipadx=10,ipady=1,padx=10,pady=10,sticky="ew")
     
