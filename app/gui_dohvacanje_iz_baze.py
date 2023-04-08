@@ -8,10 +8,11 @@ from PIL import ImageTk, Image, ImageFilter
 from tkinter.messagebox import showerror, showinfo
 from tkinter import filedialog
 import pandas as pd
+from PYFlora_baza_repozitorij import PyPosude
 from gui_repozitorij_prozora import *
 
 
-from PYFlora_baza_repozitorij import Biljke, Korisnik,spoji_se_na_bazu
+from PYFlora_baza_repozitorij import Biljke, Korisnik, spoji_se_na_bazu,PyPosude
 
 
 import os
@@ -183,11 +184,11 @@ def prikaz_biljke_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
             f"Zalijevanje: jednom {zalijevanje}\n\nMjesto u stanu: {mjesto}\n\nZahtjeva supstrat: {supstrat}",
             ('Quicksand',10),"dark",None,None,"nw",0.02,0.3)
         
-def dohvati_sliku(width, height,ime_slike):
+def dohvati_sliku(width, height,ime_slike,folder_name="SLIKE_BILJAKA"):
     if not ime_slike:
         return None
         
-    putanja = spoji_sliku_s_folderom(ime_slike)
+    putanja = spoji_sliku_s_folderom(ime_slike,folder_name=folder_name)
     if not os.path.exists(putanja):
         return None
 
@@ -198,14 +199,15 @@ def dohvati_sliku(width, height,ime_slike):
     except FileNotFoundError:
         return None
     
-def spoji_sliku_s_folderom(photo_filename):
+def spoji_sliku_s_folderom(photo_filename,folder_name):
     if os.path.exists(photo_filename):
         return photo_filename
     #  puna putanja do foldera sa slikama koji se nalazi odmah uz ovaj file
     folder_sa_slikama = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),   # folder u kojem se nalazi ovaj file
-            "SLIKE_BILJAKA"              # folder u koji ćemo spremati slike
+            #"SLIKE_BILJAKA"              # folder u koji ćemo spremati slike
+            folder_name
         )
     )
     slika_puna_putanja = os.path.join(
@@ -220,11 +222,12 @@ def azuriraj_biljku_u_bazu(id_biljke,session,repozitorij,novo_ime_biljke,novo_za
         novi podaci o biljci dohvacaju se s prozora 'prozor_azuriraj_biljku_iz_baze'
         za biljku koju smo odabrali preko njezinog id;
         potom se ova funkcija spaja na bazu i izvodi se UPDATE prema njezinom idu s novim podacima"""
-    print(f"mijenjamo: {id_biljke}") #- ovo je tocan id biljke iz baze!!!
+    #print(f"mijenjamo: {id_biljke}") #- ovo je tocan id biljke iz baze!!!
 
     biljka_iz_baze=biljka_iz_baze_prema_idu(session,id_biljke)
     for biljka in biljka_iz_baze:        
-        print(f"mijenjamo: {biljka.ime_biljke}, {biljka.zalijevanje}, {biljka.mjesto}, {biljka.supstrat}")
+        # provjera
+        # print(f"mijenjamo: {biljka.ime_biljke}, {biljka.zalijevanje}, {biljka.mjesto}, {biljka.supstrat}")
 
         ime_biljke = novo_ime_biljke.get()
         slika_biljke = biljka.slika_biljke
@@ -234,9 +237,9 @@ def azuriraj_biljku_u_bazu(id_biljke,session,repozitorij,novo_ime_biljke,novo_za
 
         # ovo je kljucni dio ove funkcije
         # na ovaj se nacin azurira biljka u bazi preko metode 'update_biljka' iz repozitorija metoda nad klasama za baze
-        repozitorij.update_biljka("SQL_PyFlora_Baza.sqlite",ime_biljke,zalijevanje,mjesto,supstrat,id_biljke)
+        repozitorij.azuriraj_biljku("SQLalchemy_PyFlora_Baza.sqlite",ime_biljke,zalijevanje,mjesto,supstrat,id_biljke)
 
-    showinfo(title="OK!", message="Podaci uspješno spremljena!")
+    showinfo(title="OK!", message="Podaci uspješno spremljeni!")
 
                 
 def otvori_i_spremi_sliku_biljke_od_korisnika(repozitorij,ime_nove_biljke,zalijevanje,mjesto,supstrat):
@@ -255,7 +258,7 @@ def otvori_i_spremi_sliku_biljke_od_korisnika(repozitorij,ime_nove_biljke,zalije
     if img:
             nova_slika = f'{ime_nove_biljke.get()}.jpg'
             
-            putanja_do_slike = spoji_sliku_s_folderom(nova_slika)
+            putanja_do_slike = spoji_sliku_s_folderom(nova_slika,folder_name="SLIKE_BILJAKA")
             # na disk spremamo sa punom putanjom da se ne spremi 
             # u folderu iz kjeg je pozvana aplikacija
             img.save(putanja_do_slike)
@@ -272,6 +275,41 @@ def otvori_i_spremi_sliku_biljke_od_korisnika(repozitorij,ime_nove_biljke,zalije
             )
     showinfo(title="YES!", message=f"Slika '{putanja_slike}' uspješno spremljena!")
 
+
+# !!! NOVA METODA
+def otvori_i_spremi_posudu_od_korisnika(repozitorij,ime_nove_posude,posadena_biljka):
+    """ ova metoda otvara posudu iz foldera korisnika 
+        i sprema je u isti folder 
+        s imenom koje je korisnik odabrao """
+    # otvaranje slike iz foldera
+    photo_filename = filedialog.askopenfilename(title ='Open image')
+    img = Image.open(str(photo_filename))
+    img = img.resize((150, 110))
+    label_slika = ImageTk.PhotoImage(img)
+    
+    # spremanje slike i putanje u folder
+    putanja_slike = f'{ime_nove_posude.get()}.jpg'
+
+    if img:
+            nova_slika = f'{ime_nove_posude.get()}.jpg'
+            
+            putanja_do_slike = spoji_sliku_s_folderom(nova_slika,folder_name="SLIKE_POSUDA")
+            # na disk spremamo sa punom putanjom da se ne spremi 
+            # u folderu iz kjeg je pozvana aplikacija
+            img.save(putanja_do_slike)
+            img.close()
+    else:
+            nova_slika = ""
+        # u bazu putanju do slike spremamo samo ime slike
+    repozitorij.spremi_posudu(PyPosude(
+                ime_posude=ime_nove_posude.get(),
+                slika_posude=nova_slika,
+                posadena_biljka = posadena_biljka.get()
+                )
+            )
+    showinfo(title="YES!", message=f"Posuda '{putanja_slike}' uspješno spremljena!")
+
+
 def izbrisi_biljku_iz_baze(repozitorij,id_biljke,gui_objekt):
     repozitorij.delete_biljka(id=id_biljke)
     showinfo(title="OK", message=f"Biljka je uspješno izbrisana!")
@@ -281,7 +319,6 @@ def izbrisi_posudu_iz_baze(repozitorij,id_posude,gui_objekt):
     repozitorij.delete_posuda(id=id_posude)
     showinfo(title="OK", message="Posuda je uspješno izbrisana!")
     gui_objekt.prozor_prikaz_posuda_PyPosuda()
-
 
 def provjeri_lozinku(lozinka):
     """ ova funkcija provjerava duljinu lozinke;
@@ -306,7 +343,7 @@ def spremi_korisnika_korisnicko_ime_i_lozinka(root,repozitorij,gui_objekt):
     label(root,'password','quicksand, 14',"warning",None,'#f3f6f4',"center",0.2,0.4)
     password = polje_za_unos(root,"warning",('quicksand',9),"*","center",0.4,0.4,20)
 
-    button_ulogiraj = ttk.Button(root, text='registriraj korisnika',
+    ttk.Button(root, text='registriraj korisnika',
     style='warning.Outline.TButton',
     bootstyle="warning-outline", 
     command=lambda:spremi_korisnika(root,repozitorij,username,password,gui_objekt),
@@ -367,7 +404,7 @@ def ubaci_sliku_kao_button_u_label_posude(neki_frame, putanja_slike, id_slike,gu
         takoder povezuje prikazanu sliku s njezinim id-om slika je GUMB;
         klikom na njega otvara se prikazan/odabran cvijet
         """
-        img= dohvati_sliku(width=125, height=85,ime_slike=putanja_slike)
+        img= dohvati_sliku(width=125, height=85,ime_slike=putanja_slike,folder_name="SLIKE_POSUDA")
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
             # ovim gumbom dobivamo prikaz biljke te DOHVACAMO ID biljke iz baze da prikaze podatke bas za tu biljku  
@@ -411,7 +448,6 @@ def dohvati_sve_posude_iz_baze_i_nacrtaj_u_gui(session,frame,gui_objekt):
         posadena_biljka = ttk.Label(desni_frame, text=f'BILJKA:\n{posadena_biljka}',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
         posadena_biljka.place(anchor ='s',relx=0.3,rely=0.95)
 
-
         # VAZNO ovdje napraviti prikaz informacija o odabranoj posudi
         # prikaz_biljke_prema_id_u_bazi(self.root,frame_za_tekst,session,id_slike)
         
@@ -427,21 +463,31 @@ def prikaz_posude_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     te daje prikaz njezinih podataka iz baze """
 
     baza_posuda=posuda_iz_baze_prema_idu(session,id_posude=id_slike)
+
     for posuda in baza_posuda:
-        img = dohvati_sliku(width=250, height=165,ime_slike=posuda.slika_posude)
+        img = dohvati_sliku(width=250, height=165,ime_slike=posuda.slika_posude,folder_name="SLIKE_POSUDA")
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
-            slika_posude = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=15,relief="groove")
-            slika_posude.image = label_slika
-            slika_posude.place(anchor='center', relx=0.5, rely=0.25) #prikaz posude gorelijevo: relx=0.18, rely=0.25
+            label_kao_slika(
+                frame=frame,
+                image=label_slika,
+                bootsytle="light_inverse",
+                borderwidth=15,
+                relief="groove",
+                anchor="center",
+                relx=0.5,
+                rely=0.25
+            )
             ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.5,rely=0.1)
 
-            ime_posude = posuda.ime_posude
-            posadena_biljka = posuda.posadena_biljka
+        ime_posude = posuda.ime_posude
+        posadena_biljka = posuda.posadena_biljka
 
-    # ovdje se ispisuju karakteristike biljaka vezane za NJEGU
+
+    # ovdje se ispisuje ime posude i koja se biljka nalazi u posudi
     label(frame_za_tekst,f"Posuda: '{ime_posude}'\nBiljka u posudi: {posadena_biljka}",
             ('Quicksand',10),"warning",None,None,"nw",0.1,0.7)
+
     
 def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     """ ova funkcija nakon klika na gumb posude
@@ -450,12 +496,19 @@ def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_
 
     baza_posuda=session.execute(TextClause(f"SELECT * FROM pyposude where id = {id_slike}"))  
     for posuda in baza_posuda:
-        img = dohvati_sliku(width=250, height=165,ime_slike=posuda.slika_posude)
+        img = dohvati_sliku(width=250, height=165,ime_slike=posuda.slika_posude, folder_name="SLIKE_POSUDA")
         if img is not None:
             label_slika = ImageTk.PhotoImage(img)
-            slika_biljke = ttk.Label(frame, image=label_slika,bootstyle="light-inverse",borderwidth=15,relief="groove")
-            slika_biljke.image = label_slika
-            slika_biljke.place(anchor='center', relx=0.5, rely=0.25)
+            label_kao_slika(
+                frame=frame,
+                image=label_slika,
+                bootsytle="light_inverse",
+                borderwidth=15,
+                relief="groove",
+                anchor="center",
+                relx=0.5,
+                rely=0.5
+            )
             ubaci_tekst_u_label(frame_za_tekst,ime_slike=posuda.ime_posude,font="quicksand, 15",bootsytle="dark",relx=0.5,rely=0.1)
 
             ime_posude = posuda.ime_posude
@@ -474,30 +527,3 @@ def proba_prikaza_podataka_o_biljci_iz_baze(ime_baze):
     connection = session.connection()
     biljka = pd.read_sql_table(table_name=ime_tablice_iz_baze, con=connection)
     print(biljka)
-
-# OVO Je bila proba prikaza detalja o biljci koji se nalaze iz baze pomocu PANDASA
-#proba_prikaza_podataka_o_biljci_iz_baze("SQL_PyFlora_Baza.sqlite")
-
-# REZULTAT: 
-#    id   ime_biljke     slika_biljke zalijevanje           mjesto supstrat
-# 0   1     orhideja     orhideja.jpg      tjedno  hladno svijetlo       ne
-# 1   5       kaktus       kaktus.jpg    mjesecno   svijetlo toplo       ne
-# 2   6      calatea      calatea.jpg      dnevno     hladno tamno       da
-# 3   7  filadendron  filadendron.jpg      tjedno   svijetlo toplo       ne
-
-
-
-    # iskombiniraj ovo: 
-# pomocu prethodnog sadrzaja sata 'igra s data frameom'
-# pripremi podatke iz baze sa onim (SELECT * From ....) pa ih spremi u varijablu
-# procitaj u pandasu
-# i prikazi
-
-
-# PRIKAZ:
-# var_graf = casedistribution_df.groupby('dateRep', as_index=False).mean(numeric_only=True)
-# plt.plot(var_graf.dateRep, var_graf.cases)
-# plt.xlabel("datum",{'fontname':'Comic Sans MS'})
-# plt.ylabel("broj slučajeva")
-# plt.legend(loc='best')
-

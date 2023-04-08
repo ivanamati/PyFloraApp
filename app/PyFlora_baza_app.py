@@ -76,7 +76,7 @@ def pokreni_aplikaciju(ime_baze):
     #     if novi_korisnik == "ne":
     #         break
 
-    spremi_posudu_u_bazu(repozitorij)
+    #spremi_posudu_u_bazu(repozitorij)
     #repozitorij.delete_posuda(3)
 
     # repozitorij.delete_biljka(1)
@@ -86,7 +86,7 @@ def pokreni_aplikaciju(ime_baze):
     #print('*'*50)
     #print('Ovo su trenutni korisnici u bazi: ')
     #repozitorij.get_all_users()
-    #kreiraj_korisnika(repozitorij)
+    kreiraj_korisnika(repozitorij)
 
     # print('Ovo su trenutne slike u bazi: ')
     # repozitorij.get_all_biljke()
@@ -106,4 +106,6 @@ def pokreni_aplikaciju(ime_baze):
 
 # ovime se postiže da se kod importa ovog modula ne izvodi ništa
 if __name__ == "__main__":
-    pokreni_aplikaciju("SQL_PyFlora_Baza.sqlite")
+    pokreni_aplikaciju("SQLalchemy_PyFlora_Baza.sqlite")
+
+# nova - 6.4. "SQLalchemy_PyFlora_Baza.sqlite"

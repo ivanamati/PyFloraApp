@@ -47,10 +47,10 @@ def spoji_se_na_bazu(ime_baze):
     # Povezimo se s bazom koristeci SQLAlchemy
     db_engine = db.create_engine(f"sqlite:///{ime_baze}")
 
-    # Kreiraj bazu sa tablicom koju smo deklarirali u klasi Korisnik
+    # Kreiraj bazu sa tablicom koju smo deklarirali u klasi Korisnik(Biljke,PyPosude)
     # odnosno izvršit će SQL upit:
     """
-        CREATE TABLE IF NOT EXISTS Korisnici (
+        CREATE TABLE IF NOT EXISTS korisnici(biljke,pyposude) (
             id INTEGER PRIMARY KEY,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL, 
@@ -70,30 +70,26 @@ class SQLAlchemyRepozitorij:
         # ovo je session koji dobijemo nakon poziva funkcije spoji_se_na_bazu
         self.session = session
 
+    # KORISNICI
+
     def create_user(self, user: Korisnik):
         """
-        spremi objekt tipa Employee u bazu i vrati isti objekt natrag
-        :param djelatnik: objekt tipa Employee
-        :type djelatnik: Employee
-        :return: Employee
-        :rtype: Employee
+        spremi objekt tipa Korisnik u bazu i vrati isti objekt natrag
+        :param djelatnik: objekt tipa Korisnik
+        :type djelatnik: Korisnik
+        :return: Korisnik
+        :rtype: Korisnik
         """
 
-        # INSERT INTO Employees(id, name, email) VALUES(?, ?, ?)
+        # INSERT INTO Korisnik(id, name, password) VALUES(?, ?, ?)
         self.session.add(user)
         self.session.commit()
         return user
 
     def update_user(self, user):
         """
-        promijeni objekt tipa Employee u bazi i vrati isti objekt natrag
-
+        promijeni objekt tipa Korisnik u bazi i vrati isti objekt natrag
         NE sprema se novi!
-
-        :param djelatnik: objekt tipa Employee
-        :type djelatnik: Employee
-        :return: Employee
-        :rtype: Employee
         """
         return self.create_user(user)
 
@@ -129,34 +125,31 @@ class SQLAlchemyRepozitorij:
          self.session.query(Korisnik).delete()
          self.session.commit()
 
+
+    # BILJKE
+
     def spremi_biljku(self, biljka: Biljke):
         """
-        spremi objekt tipa Employee u bazu i vrati isti objekt natrag
-        :param djelatnik: objekt tipa Employee
-        :type djelatnik: Employee
-        :return: Employee
-        :rtype: Employee
+        spremi objekt tipa Biljke u bazu i vrati isti objekt natrag
+        :param djelatnik: objekt tipa Biljke
+        :type djelatnik: Biljke
+        :return: Biljke
+        :rtype: Biljke
         """
-
-        # INSERT INTO Employees(id, name, email) VALUES(?, ?, ?)
         self.session.add(biljka)
         self.session.commit()
         return biljka
 
-    def azuriraj_biljku(self,biljka):
+    def azuriraj_biljkicu(self,biljka):
         """
-        promijeni objekt tipa Employee u bazi i vrati isti objekt natrag
-
+        promijeni objekt tipa Biljke u bazi i vrati isti objekt natrag
         NE sprema se novi!
-        :param djelatnik: objekt tipa Employee
-        :type djelatnik: Employee
-        :return: Employee
-        :rtype: Employee
+        Ovu metodu ne koristim
         """
         #return self.session.commit()
         return self.spremi_biljku(biljka)
     
-    def update_biljka(self,ime_baze,ime_biljke,zalijevanje, mjesto,supstrat,id_biljke):
+    def azuriraj_biljku(self,ime_baze,ime_biljke,zalijevanje, mjesto,supstrat,id_biljke):
         """ ova metoda klase se najprije spaja na bazu i kada zavrsi svoju radnju,
         zatvara bazu pomocu opcije 'with';
         zatim ulazi u bazu i mijenja zadane parametre biljke na tom id-u
@@ -166,14 +159,13 @@ class SQLAlchemyRepozitorij:
             session.execute(TextClause(f"UPDATE biljke SET ime_biljke = '{ime_biljke}', zalijevanje='{zalijevanje}', mjesto='{mjesto}', supstrat='{supstrat}' WHERE id = {id_biljke}"))
             session.commit()
 
-    def konekcija_s_bazom(self,ime_baze):
-        db_engine = db.create_engine(f"sqlite:///{ime_baze}")
-        return db_engine
-
+    # def konekcija_s_bazom(self,ime_baze):
+    #     db_engine = db.create_engine(f"sqlite:///{ime_baze}")
+    #     return db_engine
 
     def select_biljka_by_id(self, id):
         """
-        SELECT * FROM Korisnik 
+        SELECT * FROM Biljke 
         WHERE ID = ? 
         LIMIT = 1
         """
@@ -188,11 +180,6 @@ class SQLAlchemyRepozitorij:
         for biljka in self.session.query(Biljke).all():
             biljka.ispisi_podatke()
 
-    # def spoji_repozitorij_s_bazom(ime_baze):
-    #     session = spoji_se_na_bazu(ime_baze)
-    #     repozitorij2 = SQLAlchemyRepozitorijBiljke(session)
-    #     return repozitorij2
-
     def delete_biljka(self, id):
         biljka = self.select_biljka_by_id(id)
         if biljka:
@@ -205,6 +192,8 @@ class SQLAlchemyRepozitorij:
 
     def koliko_biljaka_imamo_u_bazi(self):
         return self.session.query(Biljke).count()
+    
+    # PY POSUDE
 
     def spremi_posudu(self, posuda: PyPosude):
         """
@@ -215,7 +204,6 @@ class SQLAlchemyRepozitorij:
         :rtype: PyPosude
         """
 
-        # INSERT INTO Employees(id, name, email) VALUES(?, ?, ?)
         self.session.add(posuda)
         self.session.commit()
         return posuda
@@ -236,7 +224,12 @@ class SQLAlchemyRepozitorij:
         self.session.commit()
     
 
-
+def izbrisi_korisnika_iz_baze(repozitorij,session,id_korisnika):
+    tablica_korisnika = session.execute(TextClause(f"SELECT * FROM Korisnici WHERE id = {id_korisnika}"))
+    for korisnik in tablica_korisnika:
+        if korisnik:
+            repozitorij.delete_user(id=id_korisnika)
+    
 
     # def spremi_biljku(self, biljka: Biljke):
     #     """

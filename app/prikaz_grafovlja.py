@@ -33,6 +33,8 @@ podaci = dohvati_podatke_sa_senzora()
 vlažnost_zemlje = f'{podaci[0]["vrijednost"]} %'
 #print(vlažnost_zemlje)
 
+
+
 # podaci = raspberry_pi.get_data()
 # for i in range(10):
 #     podaci.extend(raspberry_pi.get_data())
@@ -66,6 +68,9 @@ def pivotiraj_podatke(df):
     i to tako da index po kojemu idu podaci u seriji bude vrijeme dohvata
     i uz to imamo još 3 kolone koje uzimamo iz kolone "ime" iz originalnog data framea """
     return df.pivot(index="vrijeme dohvata", columns="ime senzora", values="vrijednost")
+
+df=obradi_podatke(podaci)
+pivoted_df=df.pivot(index="vrijeme dohvata", columns="ime senzora", values="vrijednost")
 
 def nacrtaj_jednostavni_graf_samo_za_temperaturu(pivoted_df):
     plt.xticks(fontsize=14)
@@ -108,6 +113,8 @@ def nacrtaj_lijepi_graf(pivoted_df):
     #ax1.grid()
     #ax2.grid()
 
+
+
 def obradi_podatke_i_nacrtaj_graf(podaci, title):
     """ovu funkciju NE koristim"""
     df = obradi_podatke(podaci=podaci)
@@ -119,19 +126,23 @@ def obradi_podatke_i_nacrtaj_graf(podaci, title):
     # prikaži vrijednosti u 3 grafa koji dijele istu X os
     # bez korištenja dodatnih funkcije koje smo gore definirali!
     pivoted_df.plot(subplots=True, title=title)
+    plt.show()
 
-def obradi_dohvacene_podatke_i_nacrtaj_graf(root,podaci, title):
+#obradi_podatke_i_nacrtaj_graf(podaci=podaci,title="senzori")
+
+def obradi_dohvacene_podatke_i_nacrtaj_graf(root, title):
         """ ova se funkcija koristi u gui_app za obradu podataka dobivenih s rasberry_pi
         te crtanje grada bas u samom GUI prozoru"""
+        podaci = dohvati_podatke_sa_senzora()
         df = pd.DataFrame(podaci)
         df["vrijeme dohvata"] = pd.to_datetime(df["vrijeme dohvata"], format="%Y-%m-%d %H:%M")
         pivoted_df = df.pivot(index="vrijeme dohvata", columns="ime senzora", values="vrijednost")
 
-        # Stvaranje figure
-        fig = Figure(figsize=(5, 4), dpi=110)
+        # Stvaranje figur4
+        fig = Figure(figsize=(5, 3), dpi=110)
 
         # Dodavanje subplot-a na figure
-        plot1 = fig.add_subplot(111)
+        plot1 = fig.add_subplot(132)
 
         # Prikazivanje podataka na subplot-u
         pivoted_df.plot(ax=plot1, subplots=True, title=title)
@@ -143,29 +154,9 @@ def obradi_dohvacene_podatke_i_nacrtaj_graf(root,podaci, title):
         # Prikazivanje canvas-a
         canvas.get_tk_widget().place(anchor="center",relx=0.5,rely=0.5)
 
+
+
 # def graf_podataka_sa_senzora():
 #     podaci = dohvati_podatke_sa_senzora()
 #     obradi_podatke_i_nacrtaj_graf(podaci=podaci, title="Podaci sa senzora")
 #     plt.show()
-
-
-# def obradi_podatke_i_nacrtaj_graf(podaci, title):
-#             df = pd.DataFrame(podaci)
-#             df["vrijeme dohvata"] = pd.to_datetime(df["vrijeme dohvata"], format="%Y-%m-%d %H:%M")
-#             pivoted_df = df.pivot(index="vrijeme dohvata", columns="ime senzora", values="vrijednost")
-
-#             # Stvaranje figure
-#             fig = Figure(figsize=(5, 4), dpi=100)
-
-#             # Dodavanje subplot-a na figure
-#             plot1 = fig.add_subplot(111)
-
-#             # Prikazivanje podataka na subplot-u
-#             pivoted_df.plot(ax=plot1, subplots=True, title=title)
-
-#             # Stvaranje canvas-a za tkinter
-#             canvas = FigureCanvasTkAgg(fig, master=self.root)  
-#             canvas.draw()
-
-#             # Prikazivanje canvas-a
-#             canvas.get_tk_widget().pack()

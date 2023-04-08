@@ -1,7 +1,7 @@
 from PYFlora_baza_repozitorij import SQLAlchemyRepozitorij, spoji_se_na_bazu
 from gui_app import PyFlora
 
-session = spoji_se_na_bazu("SQL_PyFlora_Baza.sqlite")
+session = spoji_se_na_bazu("SQLalchemy_PyFlora_Baza.sqlite")
 repozitorij = SQLAlchemyRepozitorij(session)
 
 if __name__ == "__main__":
