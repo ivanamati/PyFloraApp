@@ -2,19 +2,13 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from PIL import ImageTk, Image, ImageFilter
 from tkinter.messagebox import showerror, showinfo
-#from tkinter import filedialog
+
 from gui_repozitorij_prozora import *
 from gui_dohvacanje_iz_baze import *
-from prikaz_grafovlja import obradi_dohvacene_podatke_i_nacrtaj_graf
 
-# import matplotlib.pyplot as plt
-# from matplotlib.figure import Figure
-# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-#from prikaz_grafovlja import dohvati_podatke_sa_senzora
-from simulator_senzora import prikaz_svih_senzora_u_gui_s_dohvacenim_podacima
+from simulator_senzora import prikaz_svih_senzora_u_gui_s_dohvacenim_podacima, obradi_dohvacene_podatke_i_nacrtaj_graf_histogram, obradi_dohvacene_podatke_i_nacrtaj_line_chart_graf
 
 from PYFlora_baza_repozitorij import SQLAlchemyRepozitorij, Korisnik, Biljke, PyPosude, spoji_se_na_bazu, izbrisi_korisnika_iz_baze
-
 
 class PyFlora:
 
@@ -23,7 +17,7 @@ class PyFlora:
         self.root = ttk.Window(themename="flatly")
         self.root.title('PyFlora')
         self.width = 800
-        self.height = 600
+        self.height = 610
         self.root.geometry(f'{self.width}x{self.height}')
         self.root['bg']= '#f3f6f4'
         self.repozitorij = repozitorij
@@ -55,19 +49,20 @@ class PyFlora:
         self.root.title('PyFlora Aplikacija')
         self.root["bg"]="white"
         velika_slika_posred_ekrana(self.root,'media\PyFlora_crno_zuta.jpg')
-        prikaz_datuma(self.root)
+        prikaz_datuma_i_temperature(self.root,anchor="center", relx=0.5, rely=0.15)
         
-        label(self.root,tekst="Dobrodošli u aplikaciju PyFlora",font_slova=("quicksand", 15, "normal"),
-            stil='succes',poravnanje=None,pozadina="white",anchor="center",relx=0.5,rely=0.15)
+        label(self.root,tekst="Dobrodošli u aplikaciju PyFlora",font_slova=("quicksand", 15, "bold"),
+            stil='succes',poravnanje=None,pozadina="white",anchor="center",relx=0.5,rely=0.1)
 
         button(self.root, style='warning.TButton',
             bootstyle="warning-outline-toolbutton", 
-            text ='ulogiraj me', command=self.nacrtaj_prvi_prozor_login, padding=10, width=30,anchor="center",relx=0.5,rely=0.75)
+            text ='ulogiraj me', command=self.nacrtaj_prvi_prozor_login, padding=10, width=30,
+            anchor="center",relx=0.5,rely=0.78)
 
         button(self.root, style='warning.Outline.TButton',
             bootstyle="warning-outline-toolbutton", 
             text ='dodaj novog korisnika', command=self.prozor_za_dodavanje_novog_korisnika, padding=10, width=30,
-            anchor="center",relx=0.5,rely=0.83)
+            anchor="center",relx=0.5,rely=0.86)
         
     def prozor_za_dodavanje_novog_korisnika(self):
         """
@@ -224,6 +219,7 @@ class PyFlora:
         dohvati_sve_biljke_iz_baze_i_nacrtaj_u_gui(self.root,session,gui_objekt=self)
 
         frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","warning","ne",0.98,0.75)
+
         button_s_gridom(frame,"warning-outline","dodaj biljku",self.dodajte_novu_biljku_iz_foldera,10,15,
                         column=3,columnspan=3,row=2,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
 
@@ -244,79 +240,12 @@ class PyFlora:
         prikaz_biljke_prema_id_u_bazi(self.root,frame_za_tekst,session,id_slike)
 
         prikaz_svih_senzora_u_gui_s_dohvacenim_podacima(self.root,gui_objekt=self,id_slike=id_slike)
-        # podaci dohvaceni sa simulatora senzora za vlaznost, kiselost i salinitet zemlje te svijetlost
-        # spremljeni u varijable za prikaz na ekranu kod odabrane biljke iz baze
-        # podaci = dohvati_podatke_sa_senzora() #ovo je lista dictova!
-        # vlaznost_zemlje = f'{podaci[0]["vrijednost"]} %'
-        # kiselost = f'{podaci[1]["vrijednost"]} pH'
-        # salinitet = f'{podaci[2]["vrijednost"]} dS/m'
-        # svijetlost = f'{podaci[3]["vrijednost"]} lx'
 
-        # frame i label za prikaz statusa biljke prema dohvacenim podacima sa senzora
-        #frame_za_status_biljke=dodaj_frame_place(self.root,None,0,270,150,"heart",None,"center",0.7,0.59)
-        # kiselina = podaci[1]["vrijednost"]
-        # vlaga = podaci[0]["vrijednost"]
-        # slanost = podaci[2]["vrijednost"]
-        # osvijetljenje  = podaci[3]["vrijednost"]
-
-        # if kiselina > 7:
-        #     label(frame_za_status_biljke,
-        #       tekst="dodaj supstrat",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.2)
-        # else:
-        #     label(frame_za_status_biljke,
-        #       tekst="kiselost je u redu",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.2)
-
-        # if vlaga < 50:
-        #     label(frame_za_status_biljke,
-        #       tekst="zalijte biljku",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.35)
-
-        # else:
-        #     label(frame_za_status_biljke,
-        #       tekst="zalijevanje nije potrebno",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.35)
-
-        # if slanost > 8:
-        #     label(frame_za_status_biljke,
-        #       tekst="slanost je umjerena",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.5)
-        # else:
-        #     label(frame_za_status_biljke,
-        #       tekst="slanost je niska",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.5)
-            
-        # if osvijetljenje < 75:
-        #     label(frame_za_status_biljke,
-        #       tekst="premijestite biljku na svijetlo",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.65)
-        # else:
-        #     label(frame_za_status_biljke,
-        #       tekst="maknite biljku s izravne svijetlosti",font_slova=('Quicksand',10),stil="dark",
-        #       poravnanje="center",pozadina=None,anchor="center",relx=0.5,rely=0.65)
-
-        
-        # frame za vrijednost vlage
-        # frame_za_vlaznost=dodaj_frame_place(self.root,"raised",1,90,85,"heart",None,"center",0.77,0.16)
-        # # prikaz vlage izmjerene simulatorom senzora na ekranu
-        # label(frame_za_vlaznost,f'VLAGA\n\n{vlaznost_zemlje}',('Quicksand',10),"dark","center",None,"center",0.5,0.5)
-
-        # frame_za_kiselost=dodaj_frame_place(self.root,"raised",1,90,85,"heart",None,"center",0.63,0.16)
-        # label(frame_za_kiselost,f'KISELOST\n\n{kiselost}',('Quicksand',10),"dark","center",None,"center",0.5,0.5)
-
-        # frame_za_salinitet = dodaj_frame_place(self.root,"raised",1,90,85,"heart",None,"center",0.77,0.33)
-        # label(frame_za_salinitet,f'SALINITET\n\n{salinitet}',('Quicksand',10),"dark","center",None,"center",0.5,0.5)
-
-        # frame_za_svijetlost = dodaj_frame_place(self.root,"raised",1,90,85,"heart",None,"center",0.63,0.33)
-        # label(frame_za_svijetlost,f'SVIJETLO\n\n{svijetlost}',('Quicksand',10),"dark","center",None,"center",0.5,0.5)
-
-        
         buttoni_za_azuriranje_i_brisanje_podataka_biljaka(self.root,"biljku",
             command_azuriraj=lambda:self.prozor_azuriraj_biljku_iz_baze(id_biljke=id_slike),
             command_izbrisi=lambda:izbrisi_biljku_iz_baze(repozitorij,id_biljke=id_slike,gui_objekt=self),
-            command_senzori=self.prikazi_graf,
-            command_sinkronizacija=None,
+            command_senzori=self.glavni_prozor_za_grafove,
+            #command_sinkronizacija=None,
             # PROBLEM: kada ovdje dodam funkciju - program ne radi, smrzne se!
             #command_sinkronizacija=self.prozor_s_detaljima_o_biljci(id_slike),
             command_BACK=self.prozor_prikaz_biljaka_PyPosuda,
@@ -339,7 +268,6 @@ class PyFlora:
         frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","warning","ne",0.98,0.75)
         button_s_gridom(frame,"warning-outline","dodaj PyPosudu",self.dodajte_novu_posudu_iz_foldera,10,15,
                         column=3,columnspan=3,row=2,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
-
 
     def dodajte_novu_posudu_iz_foldera(self):
         """ 
@@ -381,6 +309,24 @@ class PyFlora:
 
         prikaz_posude_prema_id_u_bazi(self.root,frame_s_tekstom,session,id_slike)
 
+        #id_biljke_iz_posude = repozitorij.get_biljke_for_pyposuda(biljka_id=id_slike)
+
+        button_s_placeom(self.root,
+                     text="proba",
+                     style="warning",
+                     command=None,
+                     #command=lambda:self.prozor_s_detaljima_o_biljci(id_slike=id_biljke_iz_posude),
+                     padding=10,
+                     width=15,
+                     x=50,
+                     y=50)
+
+        # posuda = session.query(PyPosude).filter_by(id=id_slike).first()
+        # if posuda:
+        #     biljka_id = posuda.posadena_biljka
+        #     biljka = session.query(Biljke).filter_by(id=biljka_id).first()
+        #     if biljka:
+        #         biljka.ispisi_podatke()
 
         # baza_posuda=session.execute(TextClause("SELECT * FROM pyposude where id = biljke.id"))
         # for posuda in baza_posuda:
@@ -403,22 +349,72 @@ class PyFlora:
         #        padding=10, width=20,
         #        anchor="center", relx=0.5, rely=0.57)
         
-        buttoni_za_azuriranje_i_brisanje_podataka(self.root,"posudu",
+        buttoni_za_azuriranje_i_brisanje_podataka_plus_senzori(self.root,"posudu",
             command_azuriraj=lambda:self.prozor_azuriraj_posudu(id_slike),
-            command_izbrisi=lambda:izbrisi_posudu_iz_baze(repozitorij,id_posude=id_slike,gui_objekt=self)
-            ,command_BACK=self.prozor_prikaz_posuda_PyPosuda,anchor="center",relx=0.5,rely=0.81)
-
-    def prikazi_graf(self):
+            command_izbrisi=lambda:izbrisi_posudu_iz_baze(repozitorij, id_posude=id_slike, gui_objekt=self),
+            command_senzori=self.glavni_prozor_za_grafove,
+            command_BACK=self.prozor_prikaz_posuda_PyPosuda,
+            anchor="center", relx=0.5, rely=0.81)
+        
+    def glavni_prozor_za_grafove(self):
+        """ ova funkcija pri pozivu s gumba crta prozor u kojem se automatski
+        daje prikaz linijskog prikaza dohvacenih podataka sa senzora;
+        takoder nudi mogucnost da se pomocu gumbova na donjem dijelu ekrana
+        prikaze histagram te da se vratimo na biljke i posude u bazi """
         glavni_prozor_aplikacije(self.root,"PyFlora: Podaci sa senzora",gumb_moj_profil=self.nacrtaj_treci_prozor_moj_profil)
-            
-        #podaci = dohvati_podatke_sa_senzora()
-        obradi_dohvacene_podatke_i_nacrtaj_graf(self.root,title="Podaci sa senzora")
 
-        frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","warning","center",0.5,0.1)
+        # prikazati jedan prikaz podataka sa senzora
+        # i omoguciti druge prikaze gumbovima
+
+        # linijski graf podataka sa senzora
+        obradi_dohvacene_podatke_i_nacrtaj_line_chart_graf(self.root,title="Podaci sa senzora")
+
+        # frame za gumbe za prikaz drugih vrsta grafova
+        frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","light","center",0.5,0.84)
+        button_s_gridom(frame,"warning-outline","histagram",self.prozor_za_histagram_graf,8,10,
+                        column=1,columnspan=1,row=1,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
+        # button_s_gridom(frame,"warning-outline","bar chart",None,8,10,
+        #                 column=2,columnspan=1,row=1,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
+        
+        # gumbi za povratak na prikaz biljaka i prikaz posuda
         button_s_gridom(frame,"warning-outline","PyPosude",self.prozor_prikaz_posuda_PyPosuda,8,10,
-                        column=1,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+                        column=3,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
         button_s_gridom(frame,"warning-outline","PyBiljke",self.prozor_prikaz_biljaka_PyPosuda,8,10,
-                        column=2,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+                        column=4,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+
+    def prozor_za_histagram_graf(self):
+        """ ova funkcija pri pozivu s gumba crta prozor u kojem dobijemo
+        prikaz histagrama dohvacenih podataka sa senzora;
+        takoder nudi mogucnost da se pomocu gumbova na donjem dijelu ekrana
+        prikaze linijski graf te da se vratimo na biljke i posude u bazi """
+        glavni_prozor_aplikacije(self.root,ime_prozora="PyFlora: Podaci sa senzora",gumb_moj_profil=self.nacrtaj_treci_prozor_moj_profil)
+        obradi_dohvacene_podatke_i_nacrtaj_graf_histogram(root=self.root,title="Podaci sa senzora")
+        
+        frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","light","center",0.5,0.84)
+        button_s_gridom(frame,"warning-outline","line chart",
+                        self.glavni_prozor_za_grafove,8,10,
+                        column=1,columnspan=1,row=1,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
+        # button_s_gridom(frame,"warning-outline","bar chart",None,8,10,
+        #                 column=2,columnspan=1,row=1,ipadx=10,ipady=3,padx=10,pady=10,sticky="ew")
+        
+        # gumbi za povratak na prikaz biljaka i prikaz posuda
+        button_s_gridom(frame,"warning-outline","PyPosude",self.prozor_prikaz_posuda_PyPosuda,8,10,
+                        column=3,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+        button_s_gridom(frame,"warning-outline","PyBiljke",self.prozor_prikaz_biljaka_PyPosuda,8,10,
+                        column=4,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+
+    
+    # def prikazi_graf(self):
+    #     glavni_prozor_aplikacije(self.root,"PyFlora: Podaci sa senzora",gumb_moj_profil=self.nacrtaj_treci_prozor_moj_profil)
+            
+    #     # ova funkcija prikazuje podatke na linijskom grafu
+    #     obradi_dohvacene_podatke_i_nacrtaj_line_chart_graf(self.root,title="Podaci sa senzora")
+
+    #     frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","warning","center",0.5,0.1)
+    #     button_s_gridom(frame,"warning-outline","PyPosude",self.prozor_prikaz_posuda_PyPosuda,8,10,
+    #                     column=1,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
+    #     button_s_gridom(frame,"warning-outline","PyBiljke",self.prozor_prikaz_biljaka_PyPosuda,8,10,
+    #                     column=2,columnspan=1,row=1,ipadx=10,ipady=3,padx=15,pady=10,sticky="ew")
 
     def prozor_azuriraj_posudu(self,id_slike):
         """ 
@@ -435,7 +431,7 @@ class PyFlora:
 
         #gumb za ažuriranje biljke u posudi (još ne radi ništa)
         button(self.root, style="warning", bootstyle=None, text="dodaj/zamijeni biljku",
-            command=None,padding=20,width=20,anchor="center",relx=0.5,rely=0.57)
+            command=None,padding=10,width=20,anchor="center",relx=0.5,rely=0.58)
         
         frame = dodaj_frame_place(self.root,"raised",1,50,500,"heart","light","center",0.5,0.81)
 

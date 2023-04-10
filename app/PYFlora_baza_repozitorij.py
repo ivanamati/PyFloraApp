@@ -1,7 +1,7 @@
 from enum import unique
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import TextClause
 
 Base = declarative_base()
@@ -24,17 +24,32 @@ class Biljke(Base):
     zalijevanje = db.Column(db.String) #jednom dnevno/tjedno/mjesecno
     mjesto = db.Column(db.String) #tamno/svijetlo, toplo/hladno
     supstrat = db.Column(db.String) #da/ne
- 
+
     def ispisi_podatke(self):
         print(f"ID={self.id}, naziv_biljke = {self.ime_biljke}, putanja do slike = {self.slika_biljke}") 
         print(f"zalijeva se jednom {self.zalijevanje}, odgovara joj {self.mjesto} mjesto, supstrat: {self.supstrat}")
 
-class PyPosude(Base):
+class PyPosude(Base):  # OVO sam koristila do 8.4., a onda sam pokusavala napraviti foreign key biljka_id u klasi PyPosude
     __tablename__ = "pyposude"
     id = db.Column(db.Integer, primary_key=True)
     ime_posude = db.Column(db.String(250), unique=True, nullable = False)
     slika_posude = db.Column(db.String)
-    posadena_biljka = db.Column(db.String,db.ForeignKey("biljke.id")) # moze li se ovo povezati s ovako?
+    posadena_biljka = db.Column(db.String,db.ForeignKey("biljke.id")) # definiramo ForeignKey vezu na stupac "id" u klasi "Biljke"
+
+# class PyPosude(Base):  
+# """ OVO JE PROBA da imam foreign key "biljke.id" 
+#      mislim da je ovo bolja verzija, ali je jos ne znam napraviti
+#       """"
+#     __tablename__ = "posudepy"
+#     id = db.Column(db.Integer, primary_key=True)
+#     ime_posude = db.Column(db.String(250), unique=True, nullable = False)
+#     slika_posude = db.Column(db.String)
+#     posadena_biljka = db.Column(db.String)
+#     biljka_id = db.Column(db.String, db.ForeignKey("biljke.id"))
+
+#     #biljke = relationship("Biljke", back_populates="posuda")
+#     ili
+#     dostupne_biljke = relationship("Biljke", backref=backref("posude"))
 
     def ispisi_podatke(self):
         print(f"ID={self.id}, ime posude = {self.ime_posude}, posadena biljka = {self.posadena_biljka}")
@@ -175,6 +190,9 @@ class SQLAlchemyRepozitorij:
     def get_biljka_by_ime(self, ime_biljke):
         # ako nemamo u bazi zapisa koji ima username = username, ovo vraća None!
         return self.session.query(Biljke).filter(Biljke.ime_biljke==ime_biljke).first()
+    
+    def get_biljke_for_pyposuda(self, biljka_id):
+        return self.session.query(PyPosude).filter(PyPosude.biljka.id==biljka_id).first()
 
     def get_all_biljke(self):
         for biljka in self.session.query(Biljke).all():

@@ -1,11 +1,17 @@
 from ctypes import resize
 import random
 from datetime import datetime, timedelta
-from prikaz_grafovlja import *
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from gui_repozitorij_prozora import *
 
+# u ovom se modulu nalaze klase za simulaciju senzora PyPosuda
+# modul sadrzi i funkcije za crtanje grafova prema dohvacenim podacima iz posude
+# te funkcije za prikaz dohvacenih podataka sa senzora u GUI aplikaciji
 
-class Jagodica:         # OVO JE HUB (neka vrsta sabirnica)
+class SabirnicaSenzora:         # OVO JE HUB (neka vrsta sabirnica)
     def __init__(self, senzori):
         self.senzori = senzori
 
@@ -72,10 +78,6 @@ senzor_temperature = SenzoriZaRaspberryPi(
     ime_senzora="TEMPERATURA", max_vrijednost=100, min_vrijednost=-40, mjerna_jedinica="°C"
 )
 
-senzor_tlaka = SenzoriZaRaspberryPi(
-    ime_senzora="TLAK", max_vrijednost=1300, min_vrijednost=900, mjerna_jedinica="hPa"
-)
-
 senzor_vlage = SenzoriZaRaspberryPi(
     ime_senzora="VLAŽNOST ZEMLJE", max_vrijednost=100, min_vrijednost=0, mjerna_jedinica="%"
 )
@@ -92,14 +94,16 @@ senzor_svjetlosti = SenzoriZaRaspberryPi(
     ime_senzora="SVJETLOST", max_vrijednost=150, min_vrijednost=0, mjerna_jedinica="lx"
 )
 
-raspberry_pi_jagodica = Jagodica([senzor_temperature, senzor_tlaka, senzor_vlage])
+raspberry_pi_stara_jagodica = SabirnicaSenzora([senzor_temperature, senzor_vlage])
 
 # ovo je raspberry pi za senzore PyFlora posude koji sadrzi senzore za vlaznost zemlje, ph, salinitet zemlje te razinu svjetlosti
-raspberry_pi = Jagodica([senzor_vlage,senzor_kiselosti,senzor_saliniteta,senzor_svjetlosti])
+raspberry_pi = SabirnicaSenzora([senzor_vlage,senzor_kiselosti,senzor_saliniteta,senzor_svjetlosti])
 
-# vlažnosti zemlje
-# - pH vrijednosti i saliniteta zemlje
-# - razine svjetla koje dopire do biljke
+
+# SENZORI koje sadrzi PyPosuda:
+# - vlažnosti zemlje (postoci)
+# - pH vrijednosti i saliniteta zemlje (ph i dS/m)
+# - razine svjetla koje dopire do biljke (lux)
 
 def dohvati_podatke_sa_senzora():
     """Funkcija dohvati_podatke_sa_senzora() je funkcija u Pythonu koja vraća listu podataka s senzora. 
@@ -124,6 +128,10 @@ def dohvati_podatke_rezultata_mjerenja(ime_senzora, max_vrijednost, min_vrijedno
     return rezultat_mjerenja.dohvati_podatke_klase()
 
 def prikaz_svih_senzora_u_gui_s_dohvacenim_podacima(frame,gui_objekt,id_slike):
+    """ova funkcija dohvaca podatke sa simulatora senzora
+    te ih prikazuje najprije u cetiri mala prozorcica pored biljke;
+    u frameu ispod njih ispisuje status biljke, odnosno treba li zaliti biljku,
+    dodati supstrat ili nesto drugo s obzirom na vrijednosti sa senzora"""
     # podaci dohvaceni sa simulatora senzora za vlaznost, kiselost i salinitet zemlje te svijetlost
     # spremljeni u varijable za prikaz na ekranu kod odabrane biljke iz baze
     podaci = dohvati_podatke_sa_senzora() #ovo je lista dictova!
@@ -191,12 +199,102 @@ def prikaz_svih_senzora_u_gui_s_dohvacenim_podacima(frame,gui_objekt,id_slike):
     gumb_sinkronizacije(frame_za_status_biljke,lambda:gui_objekt.prozor_s_detaljima_o_biljci(id_slike),
                             padding=8,width=32,x=0,y=115)
 
+def prikaz_statusa_biljke_prema_podacima_sa_senzora(frame_za_tekst_statusa,anchor,relx,rely):
+    """ ova funkcija u prozoru gdje se nalaze sve biljke
+    prikazuje je li potrebno napraviti nesto 
+    s biljkom prije otvaranja prozora s detaljima od biljke"""
+    # podaci dohvaceni sa simulatora senzora za vlaznost, kiselost i salinitet zemlje te svijetlost
+    # spremljeni u varijable za prikaz na ekranu kod odabrane biljke iz baze
+    podaci = dohvati_podatke_sa_senzora() 
+    kiselost = podaci[1]["vrijednost"]
+    vlaga = podaci[0]["vrijednost"]
+    # slanost = podaci[2]["vrijednost"]
+    osvijetljenje  = podaci[3]["vrijednost"]
+
+    if kiselost > 7:
+        label(frame_za_tekst_statusa,
+            tekst="dodaj supstrat",font_slova=('Quicksand',10),stil="dark",
+            poravnanje="center",pozadina=None,anchor=anchor,relx=relx,rely=rely)
+    elif vlaga < 50:
+        label(frame_za_tekst_statusa,
+            tekst="zalijte biljku",font_slova=('Quicksand',10),stil="dark",
+            poravnanje="center",pozadina=None,anchor=anchor,relx=relx,rely=rely)
+    elif osvijetljenje < 75:
+        label(frame_za_tekst_statusa,
+            tekst="premijestite biljku na svijetlo",font_slova=('Quicksand',10),stil="dark",
+            poravnanje="center",pozadina=None,anchor=anchor,relx=relx,rely=rely)
+    elif osvijetljenje > 75:
+        label(frame_za_tekst_statusa,
+            tekst="maknite biljku sa svijetlosti",font_slova=('Quicksand',10),stil="dark",
+            poravnanje="center",pozadina=None,anchor=anchor,relx=relx,rely=rely)
+    else:
+        label(frame_za_tekst_statusa,
+            tekst="sve OK",font_slova=('Quicksand',10),stil="dark",
+            poravnanje="center",pozadina=None,anchor=anchor,relx=relx,rely=rely)
 
 
-# ovo je poziv funkcije kojoj predajem vrijednosti atributa klase "SenzoriZaRasberryPi"
-# i od nje dobivam objekt te pozivam metodu klase "PodaciSaSenzora":
-#dohvati_podatke_rezultata_mjerenja("temperatura",100,-50,"C").lijepi_ispis()
+def obradi_i_pivotiraj_podatke():
+    """ova funkcija dohvaca podatke sa senzora 
+    te ih pivotira prema dohvatu vremena za obradu i prikaz grafova;
+    funkcija vraca te pivotirane podatke"""
 
-# pozivam funkciju koja mi vraca podatke sa senzora prema vrijednostima atributa:
-#ocitanje_vrijednosti(ime_senzora="temperatura",max_vrijednost= 35,min_vrijednost= -40,mjerna_jedinica="C")
+    podaci = dohvati_podatke_sa_senzora()
+    df = pd.DataFrame(podaci)
+    df["vrijeme dohvata"] = pd.to_datetime(df["vrijeme dohvata"], format="%Y-%m-%d %H:%M")
+    pivoted_df = df.pivot(index="vrijeme dohvata", columns="ime senzora", values="vrijednost")
+    return pivoted_df
+
+def obradi_dohvacene_podatke_i_nacrtaj_line_chart_graf(root, title):
+        """ ova se funkcija koristi u gui_app za obradu podataka dobivenih s rasberry_pi
+        te crtanje grada bas u samom GUI prozoru"""
+        pivoted_df=obradi_i_pivotiraj_podatke()
+
+        # Stvaranje figur4
+        fig = Figure(figsize=(5, 4), dpi=110)
+
+        # Dodavanje subplot-a na figure
+        plot1 = fig.add_subplot(132)
+
+        # Prikazivanje podataka na subplot-u
+        pivoted_df.plot(ax=plot1, subplots=True, title=title)
+
+        # Stvaranje canvas-a za tkinter
+        canvas = FigureCanvasTkAgg(fig, master=root)  
+        canvas.draw()
+
+        # Prikazivanje canvas-a
+        canvas.get_tk_widget().place(anchor="center",relx=0.5,rely=0.4)
+
+def obradi_dohvacene_podatke_i_nacrtaj_graf_histogram(root, title):
+        """ ova se funkcija koristi u gui_app za obradu podataka dobivenih s rasberry_pi
+        te crtanje grada bas u samom GUI prozoru"""
+             
+        pivoted_df=obradi_i_pivotiraj_podatke()
+
+        # Stvaranje figur4
+        fig = Figure(figsize=(4, 3.5), dpi=110, layout='compressed')
+
+        # Dodavanje subplot-a na figure
+        plot1 = fig.add_subplot(132)
+
+        # Prikazivanje podataka na subplot-u
+        pivoted_df.plot(ax=plot1, subplots=True, title=title)
+
+        plot2 = fig.add_subplot(131)
+        pivoted_df.hist(ax=plot2)
+
+        # Stvaranje canvas-a za tkinter
+        canvas = FigureCanvasTkAgg(fig, master=root)  
+        canvas.draw()
+
+        # Prikazivanje canvas-a
+        canvas.get_tk_widget().place(anchor="center",relx=0.5,rely=0.4)
+
+
+# # ovo je poziv funkcije kojoj predajem vrijednosti atributa klase "SenzoriZaRasberryPi"
+# # i od nje dobivam objekt te pozivam metodu klase "PodaciSaSenzora":
+# #dohvati_podatke_rezultata_mjerenja("temperatura",100,-50,"C").lijepi_ispis()
+
+# # pozivam funkciju koja mi vraca podatke sa senzora prema vrijednostima atributa:
+# #ocitanje_vrijednosti(ime_senzora="temperatura",max_vrijednost= 35,min_vrijednost= -40,mjerna_jedinica="C")
 

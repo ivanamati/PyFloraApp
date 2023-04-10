@@ -4,26 +4,30 @@ from PIL import ImageTk, Image, ImageFilter
 from tkinter import filedialog
 from time import strftime
 from datetime import datetime,date
+from vrijeme_api import Prognoza
 
 # u ovom fileu se nalaze funkcije koje crtaju odredene dijelove GUI-a
 
-def prikaz_datuma(root):
+def prikaz_datuma_i_temperature(root,anchor, relx, rely):
     danas = date.today()
     # dd/mm/YY
     datum = danas.strftime("%d.%m.%Y.")
     vrijeme = strftime("%H:%M:%S")
+    temperatura = Prognoza("temperatura","celzijevci",latitude = "45.82",longitude = "15.959999")
+    prikaz_temp = temperatura.vrijednosti_s_weba(("temperature_2m"))
+
     label_s_anchorom(
         frame = root,
-        tekst=f"{datum}",
+        tekst=f"Danas je {datum}, a temperatura iznosi {prikaz_temp}°C",
         font_slova=('quicksand',10),
-        stil="primary",
+        stil="dark",
         anchor2="center",
         width=None,
         pozadina=None,
-        anchor="center",
-        relx=0.5,
-        rely=0.1)
-
+        anchor=anchor,
+        relx=relx,
+        rely=rely)
+    
 def polje_za_unos_username(root,bootstyle,font,
                            anchor,relx,rely):
     """ ova metoda crta unos usernamea te 
@@ -190,7 +194,7 @@ def nacrtaj_header(root, tekst, command_za_button):
         frame=root,
         relief='groove',
         borderwidth=1, 
-        width=1060,
+        width=1365,
         height=60,
         cursor=None,
         style="light",
@@ -215,7 +219,10 @@ def nacrtaj_header(root, tekst, command_za_button):
         relx=0.005,
         rely=0.91)
     
-    button_s_placeom(header_frame,"moj profil","warning.Outline.TButton",command_za_button,10,16,630,11)
+    button(frame=root,style="warning.Outline.TButton",bootstyle=None,text="moj profil",
+           command=command_za_button,padding=10,width=16,anchor="nw",relx=0.79,rely=0.92)
+    
+    #button_s_placeom(header_frame,"moj profil","warning.Outline.TButton",command_za_button,10,16,630,11)
 
 def dodaj_frame(glavni_frame, relief, red, stupac,
                 style, width, height, borderwidth,
@@ -254,15 +261,15 @@ def dodaj_frame_za_novu_biljku(root, redni_broj, stupac):# broj_stupaca):
     kojim dodajemo novu biljku u bazu biljaka 
     """
     frame_za_novu_biljku = ttk.Frame(
-        root,  width=50,  
-        height=50, 
+        root,  width=105,  
+        height=145, 
         borderwidth=2, 
         relief='raised', 
         style="deafult") #bg='#AFE1AF'
     frame_za_novu_biljku.grid(
         row=redni_broj, 
         column=stupac, 
-        padx=10, pady=70)
+        padx=23, pady=20)
     #mali_crno_bijeli_logo(frame_za_novu_biljku)
     return frame_za_novu_biljku
 
@@ -274,7 +281,7 @@ def gumb_za_novu_biljku(root, command_button): # ne radi promjena pozadinske boj
         root,
         text="nova biljka", 
         command= command_button, #self.dodajte_novu_biljku_iz_foldera,
-        padding=5,
+        padding=10,
         width=8,
         bootstyle="warning-outline-toolbutton") 
     button_nova_biljka.grid(
@@ -432,13 +439,14 @@ def ubaci_tekst_u_label(frame, ime_slike, font,
         bootstyle=bootsytle, 
         font=font) 
     oznaka.place(
-        anchor ='center', 
+        anchor ='nw', 
         relx=relx, 
         rely=rely)
 
 def buttoni_za_azuriranje_i_brisanje_podataka_biljaka(root, azuriraj_izbrisi_koga, 
                                               command_azuriraj, command_izbrisi, command_senzori, 
-                                              command_sinkronizacija, command_BACK, 
+                                              #command_sinkronizacija, 
+                                              command_BACK, 
                                               anchor, relx, rely):
     """ova funkcija nudi mogucnost azuriranja i brisanja korisnika"""
     frame = dodaj_frame_place(
@@ -483,15 +491,16 @@ def buttoni_za_azuriranje_i_brisanje_podataka_biljaka(root, azuriraj_izbrisi_kog
         row=1, ipadx=10, ipady=1,
         padx=10, pady=10, sticky="ew")
     
-    button_s_gridom(
-        frame=frame,
-        bootstyle="warning-outline",
-        text="SYNC",
-        command=command_sinkronizacija,
-        padding=10, width=11,
-        column=4, columnspan=1,
-        row=1, ipadx=10, ipady=1,
-        padx=10, pady=10, sticky="ew")
+    # HTJELA sam staviti ovdje gumb SYNC medutim kada ga pokrenem prozor s prikazom svih biljaka sve se zamrzen
+    # button_s_gridom(
+    #     frame=frame,
+    #     bootstyle="warning-outline",
+    #     text="SYNC",
+    #     command=command_sinkronizacija,
+    #     padding=10, width=11,
+    #     column=4, columnspan=1,
+    #     row=1, ipadx=10, ipady=1,
+    #     padx=10, pady=10, sticky="ew")
     
     button_s_gridom(
         frame=frame,
@@ -503,9 +512,9 @@ def buttoni_za_azuriranje_i_brisanje_podataka_biljaka(root, azuriraj_izbrisi_kog
         row=1, ipadx=10, ipady=1,
         padx=10, pady=10, sticky="ew")
     
-def buttoni_za_azuriranje_i_brisanje_podataka(root, azuriraj_izbrisi_koga, 
-                                              command_azuriraj, command_izbrisi, command_BACK,
-                                              anchor, relx, rely):
+def buttoni_za_azuriranje_i_brisanje_podataka_plus_senzori(root, azuriraj_izbrisi_koga, 
+                                              command_azuriraj, command_izbrisi, command_senzori,
+                                              command_BACK, anchor, relx, rely):
     """ova funkcija nudi mogucnost azuriranja i brisanja korisnika"""
     frame = dodaj_frame_place(
         frame=root,
@@ -538,7 +547,63 @@ def buttoni_za_azuriranje_i_brisanje_podataka(root, azuriraj_izbrisi_koga,
         column=2, columnspan=1,
         row=1, ipadx=10, ipady=1,
         padx=10, pady=10, sticky="ew")
+    
+    button_s_gridom(
+        frame=frame,
+        bootstyle="warning-outline",
+        text=f"SENZOR DATA",
+        command=command_senzori,
+        padding=10, width= 11, 
+        column=3, columnspan=1,
+        row=1, ipadx=10, ipady=1,
+        padx=10, pady=10, sticky="ew")
       
+    button_s_gridom(
+        frame=frame,
+        bootstyle="warning-outline",
+        text="BACK",
+        command=command_BACK,
+        padding=10, width=11,
+        column=4, columnspan=1,
+        row=1, ipadx=10, ipady=1,
+        padx=10, pady=10, sticky="ew")
+    
+
+def buttoni_za_azuriranje_i_brisanje_podataka(root, azuriraj_izbrisi_koga, 
+                                              command_azuriraj, command_izbrisi, command_BACK, anchor, relx, rely):
+    """ova funkcija nudi mogucnost azuriranja i brisanja korisnika"""
+    frame = dodaj_frame_place(
+        frame=root,
+        relief="raised",
+        borderwidth=1,
+        width=100,
+        height=500,
+        cursor="heart",
+        style="light",
+        anchor=anchor,
+        relx=relx,
+        rely=rely)  #"ne",0.98,0.35
+
+    button_s_gridom(
+        frame=frame,
+        bootstyle="warning.Outline.TButton",
+        text=f"ažuriraj {azuriraj_izbrisi_koga}",
+        command=command_azuriraj,
+        padding=10, width=11,
+        column=1, columnspan=1,
+        row=1, ipadx=10, ipady=1,
+        padx=10, pady=10, sticky="ew")
+    
+    button_s_gridom(
+        frame=frame,
+        bootstyle="danger-outline",
+        text=f"izbriši {azuriraj_izbrisi_koga}",
+        command=command_izbrisi,
+        padding=10, width= 11, 
+        column=2, columnspan=1,
+        row=1, ipadx=10, ipady=1,
+        padx=10, pady=10, sticky="ew")
+        
     button_s_gridom(
         frame=frame,
         bootstyle="warning-outline",
