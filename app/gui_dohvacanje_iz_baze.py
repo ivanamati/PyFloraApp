@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import TextClause
 from sqlalchemy.orm import sessionmaker
 import sqlalchemy as db
@@ -13,7 +14,9 @@ from gui_repozitorij_prozora import *
 
 
 from PYFlora_baza_repozitorij import Biljke, Korisnik, spoji_se_na_bazu, PyPosude
-from simulator_senzora import prikaz_statusa_biljke_prema_podacima_sa_senzora
+from gui_prikaz_grafova import *
+from gui_prikaz_sa_senzora import *
+#from simulator_senzora import prikaz_statusa_biljke_prema_podacima_sa_senzora
 
 
 import os
@@ -75,22 +78,6 @@ def dohvati_sve_biljke_iz_baze_i_nacrtaj_u_gui(root,session,gui_objekt):
         
         prikaz_statusa_biljke_prema_podacima_sa_senzora(glavni_frame,"nw",0.05,0.8)
 
-        # ovaj dio koda koristila sam za prikaz svih detalja o biljci odmah 
-        # pri njihovom prikazu iz baze, sad prikazujem samo STATUS biljke
-        # zalijevanje = biljka.zalijevanje
-        # mjesto = biljka.mjesto
-        # supstrat = biljka.supstrat
-        # label(
-        #     glavni_frame,f"'{biljka.ime_biljke}'\nZalijevanje je potrebno jednom {zalijevanje},\npoželjno mjesto je {mjesto}.\nSupstrat:{supstrat}",
-        #       "quicksand, 8","dark","center",None,"center",0.5,0.7)
-         
-        # metodu za dodavanje biljke vise ne koristim jer sam umjesto frame i velikog gumba koji se ispisuje
-        # prema retku nakon svih biljaka dodala obicni gumb ispod sinkronizacije za dodavanje
-        # nove biljke
-        # ali se metoda moze iskoristiti za prikaz POSUDA, 
-        # odnosno kao opcija za dodavanje NOVE posude:
-        #dodajmo_novu_biljku_na_listu(root,redak,stupac,gui_objekt.dodajte_novu_biljku_iz_foldera)
-
 def ubaci_sliku_kao_button_u_label_biljke(neki_frame, putanja_slike, id_slike,gui_objekt,repozitorij):
         """ 
         ova metoda prikazuje sliku u odabranom labelu
@@ -106,7 +93,8 @@ def ubaci_sliku_kao_button_u_label_biljke(neki_frame, putanja_slike, id_slike,gu
                 image=label_slika,
                 bootstyle="warning.outline",
                 padding=1,
-                command=lambda:gui_objekt.prozor_s_detaljima_o_biljci(id_slike=id_slike)
+                command=lambda:gui_objekt.prozor_s_detaljima_o_biljci(id_slike=id_slike,
+                                                                      command_za_button_BACK = gui_objekt.prozor_prikaz_biljaka_PyPosuda)
             )   
             slika_u_lijevom_frameu.image = label_slika
             slika_u_lijevom_frameu.place(anchor='center', relx=0.5, rely=0.26)
@@ -278,7 +266,6 @@ def otvori_i_spremi_sliku_biljke_od_korisnika(repozitorij,ime_nove_biljke,zalije
             )
     showinfo(title="YES!", message=f"Slika '{putanja_slike}' uspješno spremljena!")
 
-# !!! NOVA METODA
 def otvori_i_spremi_posudu_od_korisnika(repozitorij,ime_nove_posude,posadena_biljka):
     """ ova metoda otvara posudu iz foldera korisnika 
         i sprema je u isti folder 
@@ -311,7 +298,22 @@ def otvori_i_spremi_posudu_od_korisnika(repozitorij,ime_nove_posude,posadena_bil
             )
     showinfo(title="YES!", message=f"Posuda '{putanja_slike}' uspješno spremljena!")
 
+def odaberi_biljku_za_posudu():
+    """ NE RADI
+    ova metoda otvara biljku iz foldera korisnika 
+    i cuva je za spremanje u bazu """
+    # otvaranje slike iz foldera
+    photo_filename = filedialog.askopenfilename(title ='Open image')
 
+    ime_slike = os.path.basename(photo_filename)
+    ime_bez_ekstenzije = os.path.splitext(ime_slike)[0]
+    print(f"Ovo je ime slike: {ime_bez_ekstenzije}")
+    return ime_bez_ekstenzije
+
+    print(f"Ovo je ime slike: {ime_slike}")
+    print(f" Ovo je ime putanje do slike: {photo_filename}")
+    print(f" Ovo je ime bez ekstenzije: {ime_bez_ekstenzije}")
+    
 def izbrisi_biljku_iz_baze(repozitorij,id_biljke,gui_objekt):
     repozitorij.delete_biljka(id=id_biljke)
     showinfo(title="OK", message=f"Biljka je uspješno izbrisana!")
@@ -447,12 +449,15 @@ def dohvati_sve_posude_iz_baze_i_nacrtaj_u_gui(session,frame,gui_objekt):
         ubaci_tekst_u_label(lijevi_frame, posuda.ime_posude,font="quicksand, 10",bootsytle="warning",relx=0.2,rely=0.8)
 
         posadena_biljka = posuda.posadena_biljka
-        posadena_biljka = ttk.Label(desni_frame, text=f'BILJKA:\n{posadena_biljka}',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
-        posadena_biljka.place(anchor ='s',relx=0.3,rely=0.95)
+        if posadena_biljka is not None:
+            posadena_biljka
+        else:
+            posadena_biljka= "PyPosuda je prazna"
+            #print("Posuda je prazna")
 
-        # VAZNO ovdje napraviti prikaz informacija o odabranoj posudi
-        # prikaz_biljke_prema_id_u_bazi(self.root,frame_za_tekst,session,id_slike)
-        
+        posadena_biljka = ttk.Label(desni_frame, text=f'BILJKA:\n{posadena_biljka}',font="quicksand, 8", bootstyle= "default", justify='left')   # svijetlo zuta - FFE890
+        posadena_biljka.place(anchor ='s',relx=0.35,rely=0.95)
+
         stupac += 1
                     
         if stupac >= 2:
@@ -484,21 +489,45 @@ def prikaz_posude_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
 
         ime_posude = posuda.ime_posude
         posadena_biljka = posuda.posadena_biljka
-
-        #pokusaj dohvacanja biljke iz baze prema posudi -> ne radi jer baza nije uredena!
-        pyposuda = session.query(PyPosude).filter_by(id=id_slike).first()
-        print(f"Ovo je id dohvacene slike: '{id_slike}'")
-        if pyposuda:
-                bilja_id = pyposuda.posadena_biljka
-                print(f"ovo je '{bilja_id}', a ja trebam ID")
-                biljka = session.query(Biljke).filter_by(id=bilja_id).first()
-                if biljka:
-                    print(biljka.ispisi_podatke())
+        posadena_biljka = posuda.posadena_biljka
+        if posadena_biljka is not None:
+            posadena_biljka
+        else:
+            posadena_biljka= "PyPosuda je prazna"
+            #print("PyPosuda je prazna.")
 
     # ovdje se ispisuje ime posude i koja se biljka nalazi u posudi
     label(frame_za_tekst,f"Posuda: '{ime_posude}'\nBiljka u posudi: {posadena_biljka}",
             ('Quicksand',10),"warning",None,None,"nw",0.1,0.7)
-    
+
+def gumb_kojim_dohvacamo_detalje_o_biljci_iz_baze(root,session,id_slike,gui_objekt):
+    pyposuda = session.query(PyPosude).filter_by(id=id_slike).first()
+    # print(f"Ovo je id dohvacene slike: '{id_slike}'")
+    if pyposuda:
+            biljka_u_posudi = pyposuda.posadena_biljka
+            if biljka_u_posudi is not None:
+                # print(f"ovo je '{biljka_u_posudi}', a ja trebam ID")
+                biljka = session.query(Biljke).filter_by(ime_biljke=biljka_u_posudi).first()
+                if biljka:
+                    #print(biljka.ispisi_podatke())
+                    button(frame=root, 
+                        style="warning", 
+                        bootstyle=None, 
+                        text=f"{biljka_u_posudi}",
+                        command=
+                        lambda:gui_objekt.prozor_s_detaljima_o_biljci(
+                            id_slike=biljka.id,
+                            command_za_button_BACK=
+                            lambda:gui_objekt.prozor_s_detaljima_o_posudi(
+                                id_slike=id_slike
+                                )
+                            ),
+                        padding=10, width=20,
+                        anchor="center", relx=0.5, rely=0.57) 
+            else: 
+                biljka_u_posudi = "nema biljke"
+                showinfo(title="info",message="U ovoj PyPosudi nema biljke\nMožete je dodati pomoću opcije 'ažuriraj biljku'")
+
 def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_slike):
     """ ova funkcija nakon klika na gumb posude
     dohvaca posudu prema njezinom ID-u iz baze
@@ -524,12 +553,33 @@ def prikaz_posude_za_azuriranje_prema_id_u_bazi(frame,frame_za_tekst,session,id_
 
             ime_posude = posuda.ime_posude
             posadena_biljka = posuda.posadena_biljka
+            if posadena_biljka is not None:
+                posadena_biljka
+            else:
+                posadena_biljka= "PyPosuda je prazna"
+                #print("PyPosuda je prazna.")
 
     # ovdje se ispisuju karakteristike biljaka vezane za NJEGU
     label(frame_za_tekst,f"Posuda: '{ime_posude}'\n\n Biljka u posudi: {posadena_biljka}",
             ('Quicksand',10),"dark",None,None,"nw",0.1,0.7)
-    
-    
+     
+def izbrisi_biljku_iz_posude(repozitorij,session,id_slike): 
+    """ ova funkcija brise biljku iz posude u koju je posadena
+    te je uklanja isto tako iz baze;
+    to radi na taj nacin da najprije dohvaca odgovarajucu posudu iz baze
+    prema njezinom id-u te na taj nacin pristupa biljci. 
+    Nakon toga poziva repozitorij te metodu za brisanje biljke iz baze
+    koristeci naredbu update te postavljajuci vrijednost stupca 'posadena_biljka'
+    na NULL prema idu slike posude """
+    tablica_iz_baze = posuda_iz_baze_prema_idu(session,id_posude=id_slike,tablica_iz_baze="pyposude")
+        #baza_posuda=session.execute(TextClause(f"SELECT * FROM pyposude where id = {id_slike}"))  
+    for posuda in tablica_iz_baze:
+        #print(f"\novo je posadena biljka koju treba ukloniti: {posuda.posadena_biljka}\n")
+        repozitorij.izbrisi_posadenu_biljku_iz_posude(ime_baze="SQLalchemy_PyFlora_Baza.sqlite",id_slike=id_slike)
+    showinfo(title="OK",message=f"Biljka '{posuda.posadena_biljka}' je uklonjena.\n'{posuda.ime_posude}' je prazna")
+
+
+#PROBA PANDASA   
 def proba_prikaza_podataka_o_biljci_iz_baze(ime_baze):
     session = spoji_se_na_bazu(ime_baze)    
     ime_tablice_iz_baze = "biljke"  # ovo je ime tablice u SQL_PyFlora_Baza.sqlite

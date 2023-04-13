@@ -2,7 +2,9 @@ from enum import unique
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
-from sqlalchemy import TextClause
+from sqlalchemy import TextClause, update
+
+from gui_repozitorij_prozora import buttoni_za_azuriranje_i_brisanje_podataka_biljaka
 
 Base = declarative_base()
 
@@ -25,31 +27,19 @@ class Biljke(Base):
     mjesto = db.Column(db.String) #tamno/svijetlo, toplo/hladno
     supstrat = db.Column(db.String) #da/ne
 
+    # ovime povezujem PyPosude s biljkom preko ForeignKeya
+    biljka = relationship("PyPosude", backref=backref("biljka"))
+    
     def ispisi_podatke(self):
         print(f"ID={self.id}, naziv_biljke = {self.ime_biljke}, putanja do slike = {self.slika_biljke}") 
         print(f"zalijeva se jednom {self.zalijevanje}, odgovara joj {self.mjesto} mjesto, supstrat: {self.supstrat}")
 
-class PyPosude(Base):  # OVO sam koristila do 8.4., a onda sam pokusavala napraviti foreign key biljka_id u klasi PyPosude
+class PyPosude(Base): 
     __tablename__ = "pyposude"
     id = db.Column(db.Integer, primary_key=True)
     ime_posude = db.Column(db.String(250), unique=True, nullable = False)
     slika_posude = db.Column(db.String)
     posadena_biljka = db.Column(db.String,db.ForeignKey("biljke.id")) # definiramo ForeignKey vezu na stupac "id" u klasi "Biljke"
-
-# class PyPosude(Base):  
-# """ OVO JE PROBA da imam foreign key "biljke.id" 
-#      mislim da je ovo bolja verzija, ali je jos ne znam napraviti
-#       """"
-#     __tablename__ = "posudepy"
-#     id = db.Column(db.Integer, primary_key=True)
-#     ime_posude = db.Column(db.String(250), unique=True, nullable = False)
-#     slika_posude = db.Column(db.String)
-#     posadena_biljka = db.Column(db.String)
-#     biljka_id = db.Column(db.String, db.ForeignKey("biljke.id"))
-
-#     #biljke = relationship("Biljke", back_populates="posuda")
-#     ili
-#     dostupne_biljke = relationship("Biljke", backref=backref("posude"))
 
     def ispisi_podatke(self):
         print(f"ID={self.id}, ime posude = {self.ime_posude}, posadena biljka = {self.posadena_biljka}")
@@ -154,16 +144,7 @@ class SQLAlchemyRepozitorij:
         self.session.add(biljka)
         self.session.commit()
         return biljka
-
-    def azuriraj_biljkicu(self,biljka):
-        """
-        promijeni objekt tipa Biljke u bazi i vrati isti objekt natrag
-        NE sprema se novi!
-        Ovu metodu ne koristim
-        """
-        #return self.session.commit()
-        return self.spremi_biljku(biljka)
-    
+   
     def azuriraj_biljku(self,ime_baze,ime_biljke,zalijevanje, mjesto,supstrat,id_biljke):
         """ ova metoda klase se najprije spaja na bazu i kada zavrsi svoju radnju,
         zatvara bazu pomocu opcije 'with';
@@ -174,9 +155,10 @@ class SQLAlchemyRepozitorij:
             session.execute(TextClause(f"UPDATE biljke SET ime_biljke = '{ime_biljke}', zalijevanje='{zalijevanje}', mjesto='{mjesto}', supstrat='{supstrat}' WHERE id = {id_biljke}"))
             session.commit()
 
-    # def konekcija_s_bazom(self,ime_baze):
-    #     db_engine = db.create_engine(f"sqlite:///{ime_baze}")
-    #     return db_engine
+    def izbrisi_posadenu_biljku_iz_posude(self,ime_baze,id_slike):
+        with spoji_se_na_bazu(ime_baze) as session:
+            session.execute(TextClause(f"UPDATE pyposude SET posadena_biljka = NULL WHERE id = {id_slike}"))
+            session.commit()
 
     def select_biljka_by_id(self, id):
         """
@@ -186,6 +168,11 @@ class SQLAlchemyRepozitorij:
         """
         # ako nemamo u bazi zapisa koji ima ID = id, ovo vraća None!
         return self.session.query(Biljke).filter_by(id=id).first()
+
+    def popis_imena_svih_biljaka_iz_baze(self):
+        baza_biljaka = self.session.execute(TextClause("SELECT * FROM biljke"))
+        biljka = [biljka.ime_biljke for biljka in baza_biljaka]
+        return biljka 
 
     def get_biljka_by_ime(self, ime_biljke):
         # ako nemamo u bazi zapisa koji ima username = username, ovo vraća None!

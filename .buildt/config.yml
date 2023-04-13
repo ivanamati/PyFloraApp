@@ -1,0 +1,23 @@
+name: SEMINARSKI_RAD_11.4
+id: 54f2dce2-af19-423b-80a8-4ddbd1ecd5d4
+languages:
+  - Python
+extensions:
+  - .py
+  - .cgi
+  - .fcgi
+  - .gyp
+  - .gypi
+  - .lmi
+  - .py3
+  - .pyde
+  - .pyi
+  - .pyp
+  - .pyt
+  - .pyw
+  - .rpy
+  - .smk
+  - .spec
+  - .tac
+  - .wsgi
+  - .xpy

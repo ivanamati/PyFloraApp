@@ -240,6 +240,27 @@ def dodaj_frame(glavni_frame, relief, red, stupac,
                padx=padx, pady=pady)
     return frame
 
+def dodaj_frame_grid(glavni_frame, relief, red, rowspan,stupac,columnspan,
+                style, width, height, borderwidth,
+                padx, pady,ipadx,ipady):
+    """ova funkcija crta frame koristeci metodu grid
+    te prima red i stupac kod prikaza biljaka 
+    i posuda iz baze koristeci for petlju"""
+    frame = ttk.Frame(
+        glavni_frame, relief=relief,
+        width=width, height=height, 
+        borderwidth=borderwidth, 
+        style=style
+        )
+    frame.grid(
+        row=red, column=stupac, 
+        columnspan=columnspan, 
+        rowspan=rowspan, 
+        ipadx=ipadx, ipady=ipady,
+        padx=padx, pady=pady
+        )
+    return frame
+
 def dodaj_frame_place(frame, relief, borderwidth,
                       width, height, cursor,
                       style, anchor, relx, rely):
@@ -251,7 +272,8 @@ def dodaj_frame_place(frame, relief, borderwidth,
         width=width, 
         height=height,
         cursor=cursor, 
-        style=style)
+        style=style
+        )
     #frame_za_gumbe.grid(column=1, row=1, padx=5, pady=5)
     frame.place(anchor=anchor, relx=relx, rely=rely)
     return frame
@@ -265,7 +287,8 @@ def dodaj_frame_za_novu_biljku(root, redni_broj, stupac):# broj_stupaca):
         height=145, 
         borderwidth=2, 
         relief='raised', 
-        style="deafult") #bg='#AFE1AF'
+        style="deafult"
+        ) #bg='#AFE1AF'
     frame_za_novu_biljku.grid(
         row=redni_broj, 
         column=stupac, 
