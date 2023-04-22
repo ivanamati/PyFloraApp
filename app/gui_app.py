@@ -261,7 +261,7 @@ class PyFlora:
 
     def nacrtaj_treci_prozor_moj_profil(self):
         """
-        ova metoda crta prozor u kojem su prikazani svi gumbi 
+        ova metoda crta prozor MENI u kojem su prikazani svi gumbi 
         s opcijama aplikacije PyFlora
         """
         glavni_prozor_aplikacije(self.root,'PyFlora Posuda: MENU',self.nacrtaj_treci_prozor_moj_profil)
