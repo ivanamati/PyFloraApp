@@ -1,27 +1,22 @@
 import requests
-import json
-import os
-# from geopy.geocoders import Nominatim
-
 from datetime import datetime
 from time import strftime
 
-# ovaj modul sadrzi klasu prognoza te se koristi za dobivanje aktualne temperature
-# prema seminarskom zadatku temperatura je dodatna vrijednost koju treba cuvati osim podataka sa senzora
+### OVAJ MODUL SADRZI KLASU Prognoza TE SE KORISTI ZA DOBIVANJE AKTUALNE TEMPERATURE
+
 
 class Prognoza:
-
-    def __init__(self, tip_vrijednosti,mjerna_jedinica,latitude,longitude):
+    def __init__(self, tip_vrijednosti, mjerna_jedinica, latitude, longitude):
         self.tip_vrijednosti = tip_vrijednosti
         self.mjerna_jedninica = mjerna_jedinica
         self.latitude = latitude
         self.longitude = longitude
 
     def dohvati_prognozu_s_meteo_api(self):
-        """ ova metoda dohvaca podatke s weba """
+        """ova metoda dohvaca podatke s weba"""
         url = f"https://api.open-meteo.com/v1/forecast?latitude={self.latitude}&longitude={self.longitude}&hourly=temperature_2m,relativehumidity_2m,surface_pressure&daily=temperature_2m_max,temperature_2m_min&current_weather=true&timezone=auto"
         prognoza = {}
-        try: 
+        try:
             response = requests.get(url)
             if response.status_code == requests.codes.ok:
                 # dobili smo listu dictova
@@ -31,23 +26,28 @@ class Prognoza:
         except Exception as e:
             print(f"Ooooops!!!  {e}")
         return prognoza
-    
-    def vrijednosti_s_weba(self,vrijednost_koju_zelimo_ocitati):  #ovo su vrijednosti koje sam citala: "temperature_2m", "relativehumidity_2m","surface_pressure"
+
+    def vrijednosti_s_weba(
+        self, vrijednost_koju_zelimo_ocitati
+    ):  # ovo su vrijednosti koje sam citala: "temperature_2m", "relativehumidity_2m","surface_pressure"
         index = self.aktualni_sat()
-        vrijednost_api = self.dohvati_prognozu_s_meteo_api()["hourly"][vrijednost_koju_zelimo_ocitati][index]
+        vrijednost_api = self.dohvati_prognozu_s_meteo_api()["hourly"][
+            vrijednost_koju_zelimo_ocitati
+        ][index]
         return vrijednost_api
-    
+
     def aktualni_sat(self):
         sati = self.dohvati_prognozu_s_meteo_api()["hourly"]["time"]
         sada = datetime.now()
         iso_puni_sat = sada.strftime("%Y-%m-%dT%H:00")
         index_json = sati.index(iso_puni_sat)
-        #return index_json
+        # return index_json
         return index_json
 
-objekt = Prognoza("temperatura","celzijevci",latitude = "45.82",longitude = "15.959999")
+
+objekt = Prognoza("temperatura", "celzijevci", latitude="45.82", longitude="15.959999")
 # ->
-#print("Trenutna temp je:")
+# print("Trenutna temp je:")
 objekt.vrijednosti_s_weba(("temperature_2m"))
 
 # print("Trenutna vlaga je:")

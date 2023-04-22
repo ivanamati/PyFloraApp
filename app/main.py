@@ -18,5 +18,6 @@ if __name__ == "__main__":
     #gui_program.prozor_moji_podaci()
     #gui_program.prozor_prikaz_korisnika()
     #gui_program.prozor_prikaz_posuda_PyPosuda()
-    #gui_program.prozor_za_dodavanje_nove_biljke()
+    #gui_program.prozor_za_dodavanje_nove_posude()
+
     gui_program.root.mainloop()
