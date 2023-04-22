@@ -6,14 +6,14 @@ from gui_repozitorij_prozora import *
 ### OVAJ MODUL SADRŽI KLASE ZA SIMULACIJU SENZORA PYPOSUDA 
 
 
-class SabirnicaSenzora:  # OVO JE HUB (neka vrsta sabirnica)
+class SabirnicaSenzora:  # OVO JE HUB (neka vrsta sabirnice)
     def __init__(self, senzori):
         self.senzori = senzori
 
     def get_data(self):
         data = []
         for senzor in self.senzori:
-            data.append(senzor.dohvati_podatke())  # dohvati_podatke
+            data.append(senzor.dohvati_podatke())  
             # ovdje smo se mi obvezali sto ce se dogoditi i sto ce se vracati,
             # takoder da ce senzori postojati
             # i da ce senzori biti lista
@@ -22,6 +22,10 @@ class SabirnicaSenzora:  # OVO JE HUB (neka vrsta sabirnica)
 
 
 class PodaciSaSenzora:
+    """ovu sam klasu napravila kako bi podaci sa senzora bili
+    klasa, a ne dict; 
+    to je bilo za vjezbu odnosno domacu zadacu"""
+
     def __init__(self, ime_senzora, vrijednost, mjerna_jedinica, vrijeme_dohvata):
         self.ime_senzora = ime_senzora
         self.vrijednost = vrijednost
@@ -40,15 +44,12 @@ class PodaciSaSenzora:
 
 
 class SenzoriZaRaspberryPi:
-    """ovu sam klasu napravila kako bi podaci sa senzora bili
-    klasa, a ne dict; 
-    to je bilo za vjezbu odnosno domacu zadacu"""
+
     def __init__(self, ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica):
         self.name = ime_senzora
         self.max_vrijednost = max_vrijednost
         self.min_vrijednost = min_vrijednost
         self.mjerna_jedinica = mjerna_jedinica
-        # ovo dodajem iz Učinog koda
         self.value = 0
         self.vrijeme_dohvata = datetime.now()
 
@@ -147,8 +148,9 @@ def ocitanje_vrijednosti(ime_senzora, max_vrijednost, min_vrijednost, mjerna_jed
 def dohvati_podatke_rezultata_mjerenja(
     ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica
 ):
-    # ova funkcija dohvaca rezultate mjerenja
-    # pomocu metode koja vraca podatke sa senzora u obliku klase "PodaciSaSenzora"
+    """ova funkcija dohvaca rezultate mjerenja
+    pomocu metode koja vraca podatke sa senzora 
+    u obliku klase "PodaciSaSenzora" """
     rezultat_mjerenja = SenzoriZaRaspberryPi(
         ime_senzora, max_vrijednost, min_vrijednost, mjerna_jedinica
     )

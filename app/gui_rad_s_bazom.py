@@ -23,38 +23,15 @@ def dohvati_sve_biljke_iz_baze_i_nacrtaj_u_gui(root, repozitorij, gui_objekt):
     'ubaci_sliku_u_label' preko koja dohvaćamo ID slike biljke na koju smo kliknuli;
     taj self je objekt tipa PyFlora za prikaz na GUI-u
     """
-    biljke = repozitorij.dohvati_sve_biljke_iz_baze()
+    biljke = repozitorij.dohvati_sve_biljke_iz_baze() # ovo je lista biljaka iz baze sa svim podacima o biljci
     stupac = 0
     redak = 0
 
     for biljka in biljke:
         glavni_frame = dodaj_frame(
-            root, "raised", redak, stupac, "white", 110, 145, 1, 23, 20
+            root, "raised", redak, stupac, "white", width=210, height=145, 
+            borderwidth=1, padx=26, pady=20
         )
-        lijevi_frame = dodaj_frame(
-            glavni_frame,
-            "flat",
-            redak,
-            0,
-            "white",
-            width=105,
-            height=145,
-            borderwidth=0,
-            padx=None,
-            pady=None,
-        )  # svijetlo zuta - FFE890
-        desni_frame = dodaj_frame(
-            glavni_frame,
-            "flat",
-            redak,
-            1,
-            "white",
-            width=105,
-            height=145,
-            borderwidth=3,
-            padx=None,
-            pady=None,
-        )  # svijetlo zuta - FFE890
 
         ubaci_sliku_kao_button_u_label_biljke(
             glavni_frame,
@@ -63,14 +40,6 @@ def dohvati_sve_biljke_iz_baze_i_nacrtaj_u_gui(root, repozitorij, gui_objekt):
             gui_objekt=gui_objekt,
             repozitorij=gui_objekt.repozitorij,
         )
-        # ubaci_tekst_u_label(
-        #     lijevi_frame,
-        #     biljka.ime_biljke,
-        #     font="quicksand, 10",
-        #     bootsytle="warning",
-        #     relx=0.15,
-        #     rely=0.55,
-        # )
 
         zalijevanje = biljka.zalijevanje
         mjesto = biljka.mjesto

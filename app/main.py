@@ -8,10 +8,10 @@ if __name__ == "__main__":
     gui_program = PyFlora(repozitorij=repozitorij)
     gui_program.pokreni()
 
-    #gui_program.prozor_prikaz_biljaka_PyPosuda()
+    gui_program.prozor_prikaz_biljaka_PyPosuda()
     #gui_program.glavni_prozor_za_grafove()
     #gui_program.dodajte_novu_biljku_iz_foldera()
-    gui_program.naslovnica()
+    #gui_program.naslovnica()
     #gui_program.nacrtaj_prvi_prozor_login()
     #gui_program.prozor_ulaska_login_ili_registracija()
     #gui_program.nacrtaj_treci_prozor_moj_profil()

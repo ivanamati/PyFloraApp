@@ -5,7 +5,7 @@ from PIL import ImageTk, Image
 from datetime import date
 from PyFlora_vrijeme_api import Prognoza
 
-###  OVAJ MODUL SADRŽI FUNKCIJE ZA CRTANJE WIDGETA I SASTAVNIH DIJELOVA ZA modul GUI APP
+###  OVAJ MODUL SADRŽI FUNKCIJE ZA CRTANJE WIDGETA I SASTAVNIH DIJELOVA ZA modul GUI_APP
 
 
 def prikaz_datuma_i_temperature(root, anchor, relx, rely):

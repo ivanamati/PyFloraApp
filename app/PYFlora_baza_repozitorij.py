@@ -66,10 +66,8 @@ class PyPosude(Base):
 
 # funkcija za spajanje na bazu
 def spoji_se_na_bazu(ime_baze):
-    """
-    Glavna funkcija ovog modula
-    Spaja se na bazu i kreria tablicu ako ne postoji
-    """
+    """glavna funkcija ovog modula
+    Spaja se na bazu i kreria tablicu ako ne postoji"""
     # Povezimo se s bazom koristeci SQLAlchemy
     db_engine = db.create_engine(f"sqlite:///{ime_baze}")
 
@@ -85,6 +83,8 @@ def spoji_se_na_bazu(ime_baze):
 
 # Klasa SQLAlchemyRepozitorij
 class SQLAlchemyRepozitorij:
+    """klasa koja sadrzi metode za rad s klasama
+    Biljke, Korisnik te PyPosude"""
     def __init__(self, session):
         # ovo je session koji dobijemo nakon poziva funkcije spoji_se_na_bazu
         self.session = session

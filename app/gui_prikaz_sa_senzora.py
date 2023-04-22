@@ -11,7 +11,8 @@ def prikaz_svih_senzora_u_gui_s_dohvacenim_podacima(frame, frame_za_status_biljk
     dodati supstrat ili nesto drugo s obzirom na vrijednosti sa senzora;
     na dnu podataka nudi gumb sink koji azurira podatke sa senzora"""
     # podaci dohvaceni sa simulatora senzora za vlaznost, kiselost i salinitet zemlje te svijetlost
-    # spremljeni u varijable za prikaz na ekranu kod odabrane biljke iz baze
+    # spremljeni u varijable za prikaz na ekranu kod odabrane posude iz baze
+
     podaci = dohvati_podatke_sa_senzora()  # ovo je lista dictova!
     vlaznost_zemlje = f'{podaci[0]["vrijednost"]} %'
     kiselost = f'{podaci[1]["vrijednost"]} pH'
@@ -193,7 +194,7 @@ def prikaz_statusa_biljke_prema_podacima_sa_senzora(
     s posadenom biljkom prije otvaranja prozora s detaljima o pyposudi;
     ove podatke daje prema dohvacenim podacima sa senzora"""
     # podaci dohvaceni sa simulatora senzora za vlaznost, kiselost i salinitet zemlje te svijetlost
-    # spremljeni u varijable za prikaz na ekranu kod odabrane biljke iz baze
+    # spremljeni u varijable za prikaz na ekranu kod prikaza svih posude iz baze
     podaci = dohvati_podatke_sa_senzora()
     kiselost = podaci[1]["vrijednost"]
     vlaga = podaci[0]["vrijednost"]

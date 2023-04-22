@@ -4,8 +4,13 @@ from time import strftime
 
 ### OVAJ MODUL SADRZI KLASU Prognoza TE SE KORISTI ZA DOBIVANJE AKTUALNE TEMPERATURE
 
-
 class Prognoza:
+    """ ova klasa sluzi za dobivanje prognoze;
+    prima cetiri argumenta, tip vrijednosti, jedinicu te 
+    latitude i longitude za grad/mjesto;
+    pomocu nje mozemo napraviti objekt 'prognoza'
+    nad kojim možemo provoditi metode klase Prognoza """
+
     def __init__(self, tip_vrijednosti, mjerna_jedinica, latitude, longitude):
         self.tip_vrijednosti = tip_vrijednosti
         self.mjerna_jedninica = mjerna_jedinica

@@ -82,3 +82,9 @@ def obradi_dohvacene_podatke_i_nacrtaj_treci_graf(root, title):
     canvas.draw()
     # Prikazivanje canvas-a
     canvas.get_tk_widget().place(anchor="center", relx=0.5, rely=0.4)
+
+""" prilikom prikaza grafova na GUI, dobiva se slijedeća obavijest u terminalu: 
+    UserWarning: To output multiple subplots, the figure containing the passed axes is being cleared.
+    pivoted_df.plot(kind="box", ax=plot1, subplots=True, title=title);
+    ovo nije greška, nego informacija na to što se događa iza kulisa prilikom crtanja grafova s više potgrafova;
+    budući da se svaki potgrafikon crta u zasebnom polju, postojeća slika se mora obrisati prije iscrtavanja novog grafa"""

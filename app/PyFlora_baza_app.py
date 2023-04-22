@@ -99,10 +99,6 @@ def pokreni_aplikaciju(ime_baze):
     # spremi_posudu_u_bazu(repozitorij)
     # repozitorij.delete_posuda(3)
 
-    # repozitorij.delete_biljka(1)
-    # repozitorij.delete_biljka(2)
-    # repozitorij.delete_biljka(3)
-    # repozitorij.delete_biljka(4)
     # print('*'*50)
     # print('Ovo su trenutni korisnici u bazi: ')
     # repozitorij.get_all_users()
@@ -128,4 +124,3 @@ def pokreni_aplikaciju(ime_baze):
 if __name__ == "__main__":
     pokreni_aplikaciju("SQLalchemy_PyFlora_Baza.sqlite")
 
-# nova - 6.4. "SQLalchemy_PyFlora_Baza.sqlite"
