@@ -1,7 +1,7 @@
 Dobar dan, dragi korisnice!
 
 Ovo je moja prva aplikacija i prvi readme.md fajl.
-Aplikacija je vezana za smart posudu za biljke koja ocitava podatke sa senzora te prema tome da je informacije korisniku sto treba uciniti s biljkom. 
+Aplikacija je vezana za smart posudu za biljke koja ocitava podatke sa senzora te prema tome daje informacije korisniku sto treba uciniti s biljkom. 
 
 Kako biste mogli koristiti ovaj program,
 potrebno je:
